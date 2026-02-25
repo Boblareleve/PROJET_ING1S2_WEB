@@ -1,7 +1,12 @@
 {
 	"nodes":[
-		{"id":"8adaccbfe9d04be0","x":-3713,"y":460,"width":250,"height":160,"type":"text","text":"Entreprise\n* nom\n* site (url)\n* ...\n"},
-		{"id":"bd34085defe6a2e1","x":-3713,"y":680,"width":250,"height":60,"type":"text","text":"Offre de stage"}
+		{"id":"8adaccbfe9d04be0","type":"text","text":"Entreprise\n* nom\n* site (url)\n* ...\n","x":-3713,"y":460,"width":250,"height":160},
+		{"id":"bd34085defe6a2e1","type":"text","text":"Offre de stage:\n* date\n* id entreprise\n* status\n* ","x":-3713,"y":680,"width":250,"height":180},
+		{"id":"3c224705e4256e75","type":"text","text":"Prof:\n* password hash\n* username\n* nom\n* prénom","x":-3120,"y":520,"width":190,"height":200}
 	],
-	"edges":[]
+	"edges":[
+		{"id":"44b1d73074f61b16","fromNode":"8adaccbfe9d04be0","fromSide":"bottom","toNode":"bd34085defe6a2e1","toSide":"top","toEnd":"none"},
+		{"id":"fcd91acc1ab1cba8","fromNode":"3c224705e4256e75","fromSide":"left","toNode":"bd34085defe6a2e1","toSide":"right","label":"trouve_st"},
+		{"id":"2c23f6b14c034b4b","fromNode":"3c224705e4256e75","fromSide":"left","toNode":"8adaccbfe9d04be0","toSide":"right","label":"trouve_et"}
+	]
 }

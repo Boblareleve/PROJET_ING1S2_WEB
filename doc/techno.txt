@@ -1,0 +1,7 @@
+
+
+db: mySQL ? similaire à mysql mais pas de compte juste un fichier par db 
+
+back: node.js express 
+front: vue
+
