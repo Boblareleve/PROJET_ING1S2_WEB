@@ -1,0 +1,7 @@
+{
+	"nodes":[
+		{"id":"8adaccbfe9d04be0","x":-3713,"y":460,"width":250,"height":160,"type":"text","text":"Entreprise\n* nom\n* site (url)\n* ...\n"},
+		{"id":"bd34085defe6a2e1","x":-3713,"y":680,"width":250,"height":60,"type":"text","text":"Offre de stage"}
+	],
+	"edges":[]
+}
