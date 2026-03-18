@@ -2,8 +2,7 @@
 
 db: mySQL ? similaire à mysql mais pas de compte juste un fichier par db 
 
-faster: better-sqlite3 
-
+faster: better-sqlite3
 
 back: node.js express 
 front: vue
@@ -12,4 +11,17 @@ npm packages:
     npm install -g jsonwebtoken 
     npm install -g nodemon
 
+
+
+planning :
+
+ + front
+    attendre api
+
+ + back
+    api
+    attendre ihm de db
+
+ + db
     
+
