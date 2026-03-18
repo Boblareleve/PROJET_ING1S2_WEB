@@ -8,7 +8,7 @@ const sqlite3 = require("better-sqlite3");
 // const { parseArgs } = require("util");
 
 
-const { db_get, db_run } = require("./db.js");
+const { db_get, db_run, db_get_all } = require("./db.js");
 
 
 const db_auth = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
@@ -32,7 +32,7 @@ const cookie_token_access = "token_access"
 const cookie_token_refresh = "token_refresh"
 
 const refresh_timeout = 7 * 24 * 60 * 60 * 1000; // 7d
-const access_timeout = 10 * 60 * 1000; // 10min
+const access_timeout  = 10 * 60 * 1000;          // 10min
 
 
 
@@ -55,14 +55,12 @@ router.delete("/logout", async (req, res) =>
 
 function delete_all_tokens()
 {
-    assert(false); // you need to kick out pp from games
     if (null === db_run(db_auth, `TRUNCATE TABLE RTokens;`))
         console.error("    Failed to truncate RTokens");
 }
 
 function delete_expired_tokens() 
 {
-    assert(false); // you need to kick out pp from games
     if (null === db_run(db_auth,
         `DELETE FROM RTokens
             WHERE expiration >= ?;`,
