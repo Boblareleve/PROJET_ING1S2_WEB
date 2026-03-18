@@ -25,15 +25,8 @@ CREATE TABLE IF NOT EXISTS Admins
     FOREIGN KEY (person_id) REFERENCES Persons(id)
 );
 
-CREATE TABLE IF NOT EXISTS Tutors
-(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    person_id INTEGER NOT NULL,
-    
-    FOREIGN KEY (person_id) REFERENCES Persons(id)
-);
 
-CREATE TABLE IF NOT EXISTS Jury_membres
+CREATE TABLE IF NOT EXISTS Supervisors
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     person_id INTEGER NOT NULL,
@@ -94,28 +87,6 @@ CREATE TABLE IF NOT EXISTS Internship_files
     
     FOREIGN KEY (student_id)    REFERENCES Students(id),
     FOREIGN KEY (internship_id) REFERENCES Internship(id)
-);
-
-CREATE TABLE IF NOT EXISTS Notes_tutors
-(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    internship_file_id INTEGER NOT NULL,
-    
-    info TEXT,
-    create_date INTEGER,
-    
-    FOREIGN KEY (internship_file_id) REFERENCES Internship_files(id)
-);
-
-CREATE TABLE IF NOT EXISTS Notes_students
-(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    internship_file_id INTEGER NOT NULL,
-    
-    info TEXT,
-    create_date INTEGER,
-    
-    FOREIGN KEY (internship_file_id) REFERENCES Internship_files(id)
 );
 
 
