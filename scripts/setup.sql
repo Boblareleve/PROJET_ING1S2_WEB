@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS Tokens
     -- email           TEXT NOT NULL, -- to ref Accounts
     expiration      INTEGER,
     token           TEXT,
-
+    
     FOREIGN KEY (account_id) REFERENCES Accounts(id)
 );
 

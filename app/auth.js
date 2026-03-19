@@ -268,9 +268,4 @@ function put_token_in_db(account_id, refresh_token)
 }
 
 
-
-// module.exports = router;
-const authRoutes = router;
-module.exports = { is_connected, authRoutes };
-
-// console.log("auth.js module: " + JSON.stringify(module.exports));
+module.exports = { is_connected, authRouter: router };

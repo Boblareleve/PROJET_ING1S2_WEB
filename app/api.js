@@ -1,6 +1,8 @@
 const express = require('express');
 const cookieParser = require("cookie-parser");
 
+
+const { is_connected, authRouter } = require('./auth.js');
 const router  = express.Router();
 // const authRouter = express.Router();
 // console.log(router);
@@ -13,7 +15,7 @@ router.use(cookieParser());
 // console.log(typeof router);
 
 
-app.get('/download/:filename', (req, res) =>
+router.get('/download/:filename', (req, res) =>
 {
     // sanitize to prevent path traversal attacks (../../etc/passwd)
     const filename = path.basename(req.params.filename)
@@ -25,9 +27,6 @@ app.get('/download/:filename', (req, res) =>
 })
 
 
-
-
-const authRouter = require('./auth.js');
 module.exports = { apiRouter: router, authRouter };
 
 
