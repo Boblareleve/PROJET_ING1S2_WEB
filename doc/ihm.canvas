@@ -6,12 +6,13 @@
 		{"id":"cc7f0d3fc512798b","type":"text","text":"Domaine\n+ intitulé","x":-3840,"y":536,"width":250,"height":112},
 		{"id":"d9e5850047870d44","type":"text","text":"Encadrant","x":-3160,"y":754,"width":250,"height":60},
 		{"id":"4fb75df50292a824","type":"text","text":"Etudiant\n+ num étu","x":-3160,"y":880,"width":250,"height":80},
-		{"id":"72dd40628d0a6099","type":"text","text":"bulletin\n+ chemin\n+ année\n+ semestre ?\n+ ...","x":-3260,"y":1040,"width":250,"height":200},
-		{"id":"03244a35f4006843","type":"text","text":"Compte\n\n+ password hash\n* email","x":-2860,"y":468,"width":250,"height":249},
-		{"id":"9406b15f32beca0b","type":"text","text":"personne\n+ nom\n+ prénom","x":-2830,"y":786,"width":220,"height":116},
-		{"id":"4276163f2d91705c","type":"text","text":"admin","x":-2860,"y":976,"width":250,"height":60},
 		{"id":"95d0c05c29fbe7e3","type":"text","text":"document\n+ chemin\n+ privé (accessible seulement à par l'étudiant)","x":-3900,"y":805,"width":310,"height":150},
-		{"id":"c66e0ec83a7beaaa","type":"text","text":"type document (semi-static):\n* genre VARCHAR","x":-3852,"y":1140,"width":300,"height":130}
+		{"id":"c66e0ec83a7beaaa","type":"text","text":"type document (semi-static):\n* genre VARCHAR","x":-3852,"y":1140,"width":300,"height":130},
+		{"id":"03244a35f4006843","type":"text","text":"Compte\n\n+ password hash\n* email","x":-3160,"y":399,"width":250,"height":249},
+		{"id":"f978b47266a255e6","x":-2830,"y":536,"width":250,"height":110,"type":"text","text":"token:\n+ is_admin"},
+		{"id":"4276163f2d91705c","type":"text","text":"admin","x":-2830,"y":399,"width":250,"height":60},
+		{"id":"9406b15f32beca0b","type":"text","text":"personne\n+ nom\n+ prénom","x":-2830,"y":784,"width":220,"height":116},
+		{"id":"72dd40628d0a6099","type":"text","text":"bulletin\n+ chemin\n+ année\n+ semestre ?\n+ ...","x":-3200,"y":1040,"width":250,"height":200}
 	],
 	"edges":[
 		{"id":"44b1d73074f61b16","fromNode":"8adaccbfe9d04be0","fromSide":"bottom","toNode":"bd34085defe6a2e1","toSide":"top","toEnd":"none"},
@@ -24,12 +25,12 @@
 		{"id":"f390f07013de19f3","fromNode":"9406b15f32beca0b","fromSide":"left","toNode":"4fb75df50292a824","toSide":"right","toEnd":"none"},
 		{"id":"094f9b8877ce706d","fromNode":"8adaccbfe9d04be0","fromSide":"right","toNode":"03244a35f4006843","toSide":"left","toEnd":"none"},
 		{"id":"bfd3ff8925bec282","fromNode":"cc7f0d3fc512798b","fromSide":"bottom","toNode":"bd34085defe6a2e1","toSide":"left","toEnd":"none"},
-		{"id":"f5f1b0f9b5eebebf","fromNode":"4276163f2d91705c","fromSide":"top","toNode":"9406b15f32beca0b","toSide":"bottom","toEnd":"none"},
 		{"id":"282eb7ed4119fd67","fromNode":"c66e0ec83a7beaaa","fromSide":"top","toNode":"95d0c05c29fbe7e3","toSide":"bottom","toEnd":"none"},
 		{"id":"36c754408c017cd5","fromNode":"657fb9151688c7e7","fromSide":"top","toNode":"95d0c05c29fbe7e3","toSide":"right","toEnd":"none"},
 		{"id":"f5d786ca6a9156bb","fromNode":"d9e5850047870d44","fromSide":"left","toNode":"657fb9151688c7e7","toSide":"right","toEnd":"none"},
 		{"id":"8d09fd8ee5be8628","fromNode":"d9e5850047870d44","fromSide":"right","toNode":"9406b15f32beca0b","toSide":"left","toEnd":"none"},
 		{"id":"aaf6cdd09fd024f1","fromNode":"72dd40628d0a6099","fromSide":"top","toNode":"4fb75df50292a824","toSide":"bottom","toEnd":"none"},
-		{"id":"b00d93bf45774d46","fromNode":"657fb9151688c7e7","fromSide":"top","toNode":"ed2728fddd81a722","toSide":"bottom"}
+		{"id":"3a6ef1fdbd37cb54","fromNode":"03244a35f4006843","fromSide":"right","toNode":"f978b47266a255e6","toSide":"left","toEnd":"none"},
+		{"id":"74025a035065a3f1","fromNode":"03244a35f4006843","fromSide":"right","toNode":"4276163f2d91705c","toSide":"left","toEnd":"none"}
 	]
 }

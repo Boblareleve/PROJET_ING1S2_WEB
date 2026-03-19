@@ -2,14 +2,10 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const sqlite3 = require("better-sqlite3");
-// const http = require("http");
-// const fs = require("fs");
-// const sha256 = require('js-sha256');
-// const { parseArgs } = require("util");
 
 
-const { db_get, db_run, db_get_all } = require("./db.js");
-
+const { db_get, db_run, db_get_all } = require("./db_wrapper.js");
+const { ROLE } = require('./role.js');
 
 const db_auth = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
 if (!db_auth) console.error("Can't open database ./var/db.db");
@@ -28,7 +24,7 @@ const JWT_RE_SECRET = process.env.JWT_RE_SECRET || 'y--secdret-key';
 
 
 const token = "token";
-const cookie_token_access = "token_access"
+const cookie_token_access  = "token_access"
 const cookie_token_refresh = "token_refresh"
 
 const refresh_timeout = 7 * 24 * 60 * 60 * 1000; // 7d
@@ -37,13 +33,9 @@ const access_timeout  = 10 * 60 * 1000;          // 10min
 
 
 
-
-
-
-router.delete("/logout", async (req, res) => 
+router.delete("/logout", async (req, res) =>
 {
-    res.clearCookie(cookie_token_refresh);
-    res.clearCookie(cookie_token_access);
+    clear_cookies(res);
     
     if (null === delete_db_token(req.cookies.refresh_token))
         return res.status(500).send("can't erase refresh token from database");
@@ -51,12 +43,59 @@ router.delete("/logout", async (req, res) =>
     res.end();
 });
 
+router.post("/login", async (req, res) =>
+{
+    console.log(`req..email: ${req.body.email}; req..password: ${req.body.password}`);
+    
+    try {
+        // all functions called there return a string on error
+
+        const account = get_account(req.body.email);
+        if (typeof account === 'string') throw account;
+
+        const is_account_verified = verify_password(account, req.body.password);
+        if (typeof is_account_verified === 'string') throw is_account_verified;
+
+        const role = get_role(account);
+        if (typeof role === 'string') throw role;
+
+        const refresh_token = jwt.sign({ email: account.email }, JWT_RE_SECRET);
+
+        const is_in_db = put_token_in_db(account.id, refresh_token);
+        if (typeof is_in_db === 'string') throw is_in_db;
+        
+
+        set_cookies(res,
+            jwt.sign({ email: req.body.email }, JWT_AC_SECRET, { expiresIn: access_timeout }), 
+            refresh_token
+        );
+
+        return res.send({ role: role });
+    }
+    catch (err)
+    {
+        console.error(err);
+        clear_cookies(res);
+        return res.status(500).send(err);
+    }
+});
+
+
+// router.get("/refresh", async (req, res) => 
+// {
+//     if (is_connected(req, res))
+//         res.header(401).send("logged out");
+
+//     res.send("token refreshed");
+// });
+
+
 
 
 function delete_all_tokens()
 {
     if (null === db_run(db_auth, `TRUNCATE TABLE RTokens;`))
-        console.error("    Failed to truncate RTokens");
+        console.error("Failed to truncate RTokens");
 }
 
 function delete_expired_tokens() 
@@ -66,40 +105,26 @@ function delete_expired_tokens()
             WHERE expiration >= ?;`,
             [Date.now()]
     ))
-        console.error("    Deleting expiered tokens");
+        console.error("Deleting expiered tokens");
 }
 
 function delete_db_token(token) 
 {
-    let error = true; // noerror
     try {
         const payload = jwt.verify(token, JWT_RE_SECRET);
-        const err = quit_game(payload.username);
-        if (err !== true)
-            console.log(`quit faild: ${err}`);
+
+        if (null === db_run(db_auth,
+            `DELETE FROM Tokens WHERE token = ?;`,
+            [playload /* .TODO */]
+        ))
+            return null;
     }
     catch (err)
     {
-        error = null;
+        return null;
     }
-    
-    if (null === db_run(db_auth,
-        `DELETE FROM RTokens WHERE token = ?;`,
-        [token]
-    ))
-        error = null;
-    return error; 
+    return true; 
 }
-
-
-router.get("/refresh", async (req, res) => 
-{
-    if (is_connected(req, res))
-        res.header(401).send("logged out");
-
-    res.send("token refreshed");
-});
-
 
 
 function set_cookies(res, access_token, refresh_token)
@@ -108,7 +133,7 @@ function set_cookies(res, access_token, refresh_token)
         httpOnly: true,
         secure: true, // true if using HTTPS
         sameSite: 'Strict',
-        maxAge: refresh_timeout // 7d
+        // maxAge: refresh_timeout // 7d only managed with db Tokens table
     })
     res.cookie(cookie_token_access, access_token, {
         httpOnly: true,
@@ -117,46 +142,25 @@ function set_cookies(res, access_token, refresh_token)
         maxAge: access_timeout // 10m
     });
 }
-
-
-
-function validate_username_password(username, password)
+function clear_cookies(res)
 {
-    const db_user = db_get(db_auth, 
-        "SELECT user_name, password_hash FROM Users WHERE user_name = ?;",
-         [username]
-    );
-    if (db_user === null)
-    {
-        console.error("validate_username_password err("+db_user+"): no user named " + username);
-        return "user name not found";
-    }
-    if (sha256.hex(password) != db_user.password_hash)
-    {
-        console.error("validate_username_password: password missmatch");
-        return "password missmatch";
-    }
-    return null;
+    res.clearCookie(cookie_token_refresh);
+    res.clearCookie(cookie_token_access);
 }
-
-
 function is_token_db_valid(tk)
 {
     const db_tk = db_get(db_auth, `
-        SELECT token, expire 
-        FROM RTokens
+        SELECT expiration 
+        FROM Tokens
         WHERE token = ?;`,
         [tk]
     );
-    if (db_tk === null || db_tk === undefined)
+    if (db_tk === null)
         return false;
-    // now after expire delete it
-    if (Date.now() >= db_tk.expire)
+
+    // if it expire delete it
+    if (Date.now() >= db_tk.expiration)
     {
-        // console.log("   " + db_tk.expire + " >= " + Date.now());
-        // console.log("   " + Date(db_tk.expire) + " >= " + Date(Date.now()));
-        // console.log(Date(time_login));
-        
         console.log("tk refresh expired: " + tk);
         delete_db_token(tk);
         return false;
@@ -164,94 +168,105 @@ function is_token_db_valid(tk)
     return true;
 }
 
-
-// refresh
-function is_connected(req, res)
+function jwt_verify(token, secret)
 {
-    try {
-        const payload = jwt.verify(req.cookies.token_access, JWT_AC_SECRET);
-        console.log("is_connected access valid");
-        // access is valid
-        return payload.username;
-    }
-    catch (err)
+    try
     {
-        console.log("is_connected access invalid");
-
-        // console.error("is_connected: " + err);
-        if (is_token_db_valid(req.cookies.token_refresh))
-        {
-            console.log("tk_re in db: "+ req.cookies.token_refresh);
-            let payload = null;
-            try { payload = jwt.verify(req.cookies.token_refresh, JWT_RE_SECRET); }
-            catch (err) {
-                console.log("invalid refresh token in db err("+err+") " + req.cookies.token_refresh);
-            }
-            const username = payload.username;
-            
-            set_cookies(res, 
-                jwt.sign({ username }, JWT_AC_SECRET),
-                req.cookies.token_refresh
-            );
-            // access refreshed
-            return username;
-        }
-        
-        console.log(`refresh token ${req.cookies.token_refresh} is not in the db`);
-        res.clearCookie(cookie_token_refresh);
-        res.clearCookie(cookie_token_access);
-        // cookies deleted
+        return jwt.verify(token, secret);
+    } catch (err)
+    {
         return null;
     }
 }
 
-
-router.post("/login", async (req, res) =>
+// refresh access token if necessary
+// null on error
+function is_connected(req, res)
 {
-    const username = req.body.username;
-    const password = req.body.password;
-    console.log(`req.username: ${username}; req.password: ${password}`);
-    
-    let db_user = null;
+    let tk_access  = res.cookies.token_access;
+    let tk_refresh = res.cookies.token_refresh;
 
-    const p_validate = validate_username_password(username, password);
-    if (p_validate != null)
-        return res.status(401).send(p_validate);
+    let payload = jwt_verify(tk_access, JWT_AC_SECRET);
+    if (payload === null)
+    {
+        console.log("is_connected access invalid");
 
-    // delete old log in
-    // delete token (to reset his timeout) // done by on confilct
-    // if (req.cookies.token_refresh !== undefined 
-    //  || req.cookies.token_refresh !== null)
-    //     delete_db_token(req.cookies.token_refresh);
+        if (!is_token_db_valid(tk_refresh))
+        {
+            console.log(`refresh token ${tk_refresh} is not in the db`);
+            clear_cookies(res);
+            return null;
+        }
 
-    
-    // console.log(`geneate new tokens cur refresh: ${req.cookies.token_refresh}`);
-    let refresh_token = jwt.sign({ username }, JWT_RE_SECRET);
-    let access_token  = jwt.sign({ username }, JWT_AC_SECRET, { expiresIn: access_timeout });
-    
-    let expire_time = Date.now() + refresh_timeout;
-    // console.log("date " + new Date(time_login));
-    // console.log("date exp " + new Date(time_login + refresh_timeout));
-    // console.log("ts exp " + (refresh_timeout));
-    // console.log("ts " + time_login);
-    
-    let err = db_run(db_auth,
-        `INSERT INTO RTokens (token, expire)
-            VALUES(?, ?) 
-            ON CONFLICT(token) 
-            DO UPDATE SET expire = ?;`,
+        payload = jwt_verify(tk_refresh, JWT_RE_SECRET);
+        if (payload === null)
+        {
+            console.log("invalid refresh token in db err("+err+") " + tk_refresh);
+            clear_cookies(res);
+            return null;
+        }
+        
+        // access refreshed
+        tk_access = jwt.sign({ email: payload.email }, JWT_AC_SECRET, { expiresIn: access_timeout });
+        console.log("\tOK");
+    }
 
-        // `INSERT INTO RTokens (token, expire) 
-        //  VALUES (?, ?);`, 
-            [refresh_token, expire_time, expire_time]
+    set_cookies(res,
+        tk_access,
+        tk_refresh
     );
-    if (err === null)
-        return res.status(500).send("can't insert refresh token into db");
-    
+    return payload.email;
+}
 
-    set_cookies(res, access_token, refresh_token);
-    res.send("Logged in successfully");
-});
+
+function get_role(account)
+{
+    if (db_get(db_auth, "SELECT FROM Admins WHERE id = ?;", [account.id]) != null)
+        return ROLE.ADMIN;
+    if (db_get(db_auth, "SELECT FROM Supervisors WHERE id = ?;", [account.id]) != null)
+        return ROLE.SUPERVISOR;
+    if (db_get(db_auth, "SELECT FROM Students WHERE id = ?;", [account.id]) != null)
+        return ROLE.STUDENT;
+    if (db_get(db_auth, "SELECT FROM Companies WHERE id = ?;", [account.id]) != null)
+        return ROLE.COMPANY;
+    return "can't find role";
+}
+
+function get_account(email)
+{
+    const account = db_get(db_auth, "SELECT * FROM Accounts WHERE email = ?;", [email]);
+    if (account === null)
+    {
+        console.error("create_login_token err("+account+"): no email: " + email);
+        return "email not found";
+    }
+    return account;
+}
+
+function verify_password(account, password)
+{   
+    if (account.password_hash != sha256.hex(password))
+        return "password missmatch";
+    return account;
+}
+
+function put_token_in_db(account_id, refresh_token) 
+{
+    const expire_time = Date.now() + refresh_timeout;
+    if (db_run(db_auth,
+        `
+            INSERT INTO Tokens (account_id, token, expiration)
+                VALUES(?, ?, ?)
+            ON CONFLICT(token) 
+                DO UPDATE SET expiration = ?;
+        `,
+        [...[account_id, refresh_token, expire_time], expire_time]
+    ) === null)
+        return "can't add new refresh token in db";
+
+    return true;
+}
+
 
 
 // module.exports = router;
