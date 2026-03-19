@@ -4,7 +4,7 @@ const express = require('express');
 const sqlite3 = require("better-sqlite3");
 
 
-const { db_get, db_run, db_get_all } = require("./db_wrapper.js");
+const { db_get, db_run, db_get_all } = require("./db/db_wrapper.js");
 const { ROLE } = require('../share/role.js');
 
 const db_auth = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create

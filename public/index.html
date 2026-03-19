@@ -4,6 +4,29 @@
         <title>hello</title>
     </head>
     <body>
-        word
+        <button id="logout">
+            logout
+        </button>
     </body>
+
+    <script>
+
+        document.getElementById("logout").onclick = async () =>
+        {
+            const res = await fetch("/auth/logout", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json; charset=UTF-8" },
+                credentials: "include"
+            });
+
+            if (!res.ok)
+            {
+                const text = await res.text();
+                console.error(`HTTP ${res.status}: ${text}`);
+            }
+            // document.location.href = "/connect.html";
+        }
+
+
+    </script>
 </html>
