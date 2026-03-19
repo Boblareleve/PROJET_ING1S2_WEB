@@ -5,7 +5,7 @@ const sqlite3 = require("better-sqlite3");
 
 
 const { db_get, db_run, db_get_all } = require("./db_wrapper.js");
-const { ROLE } = require('./role.js');
+const { ROLE } = require('../share/role.js');
 
 const db_auth = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
 if (!db_auth) console.error("Can't open database ./var/db.db");

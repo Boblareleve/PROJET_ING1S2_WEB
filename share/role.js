@@ -8,4 +8,6 @@ const ROLE = Object.freeze({
     COMPANY: 3
 });
 
-module.exports = { ROLE };
+
+if (typeof module !== 'undefined')
+    module.exports = { ROLE };

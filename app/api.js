@@ -21,7 +21,8 @@ router.get('/download/:filename', (req, res) =>
     const filename = path.basename(req.params.filename)
     const file = path.join(__dirname, 'var/storage', '?', filename)
 
-    res.download(file, (err) => {
+    res.download(file, (err) =>
+    {
         if (err) res.status(404).json({ error: 'File ' + filename + ' not found' })
     })
 })

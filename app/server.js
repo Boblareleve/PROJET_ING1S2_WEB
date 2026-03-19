@@ -22,7 +22,7 @@ const { apiRouter, authRouter } = require('./api.js');
 
 // // activate
 app.use('/api', apiRouter);
-app.use('/auth', authRoutes);
+app.use('/auth', authRouter);
 
 
 // static directory
