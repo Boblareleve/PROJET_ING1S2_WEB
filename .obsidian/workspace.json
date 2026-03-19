@@ -1,0 +1,201 @@
+{
+  "main": {
+    "id": "e87e0d915b3226b4",
+    "type": "split",
+    "children": [
+      {
+        "id": "a72641e0b4c261f7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e29e3e46f04e3226",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "doc/ihm.canvas",
+                "viewState": {
+                  "x": -3068.577890835736,
+                  "y": 1014.0688022342399,
+                  "zoom": -0.10713453828760575
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "ihm"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "8198a2bcf42661cd",
+    "type": "split",
+    "children": [
+      {
+        "id": "220814a89b2a10aa",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "18a987a3b8a50c86",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "a51f6e8507f4f2e9",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "0e304c2bea73921a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200
+  },
+  "right": {
+    "id": "a93b5c73a099f56c",
+    "type": "split",
+    "children": [
+      {
+        "id": "963593afbf6eb654",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7911732688a1533f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "doc/ihm.canvas",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for ihm"
+            }
+          },
+          {
+            "id": "392c45fd7069f136",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "doc/ihm.canvas",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from ihm"
+            }
+          },
+          {
+            "id": "939ac068846d200e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "4c7c0d9d7401be35",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "50f25a7e4c9d171c",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "doc/ihm.canvas",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of ihm"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "e29e3e46f04e3226",
+  "lastOpenFiles": [
+    "app/db/db.js",
+    "app/db",
+    "var/storage/aug/data.txt",
+    "var/storage/aug",
+    "var/storage",
+    "app/role.js",
+    "app/db_wrapper.js",
+    "app/db.js",
+    "db"
+  ]
+}
