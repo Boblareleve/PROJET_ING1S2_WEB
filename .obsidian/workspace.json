@@ -188,14 +188,16 @@
   },
   "active": "e29e3e46f04e3226",
   "lastOpenFiles": [
+    "public/connect.js",
+    "public/connect.html",
+    "app/db/db_wrapper.js",
+    "share/role.js",
+    "share",
+    "app/role.js",
     "app/db/db.js",
     "app/db",
     "var/storage/aug/data.txt",
     "var/storage/aug",
-    "var/storage",
-    "app/role.js",
-    "app/db_wrapper.js",
-    "app/db.js",
-    "db"
+    "var/storage"
   ]
 }
