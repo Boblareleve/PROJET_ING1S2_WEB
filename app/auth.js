@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const sqlite3 = require("better-sqlite3");
-
+const sha256 = require('js-sha256'); 
 
 const { db_get, db_run, db_get_all } = require("./db/db_wrapper.js");
 const { ROLE } = require('../share/role.js');
@@ -70,6 +70,7 @@ router.post("/login", async (req, res) =>
             refresh_token
         );
 
+        console.log("role: " + role);
         return res.send({ role: role });
     }
     catch (err)
@@ -221,13 +222,13 @@ function is_connected(req, res)
 
 function get_role(account)
 {
-    if (db_get(db_auth, "SELECT FROM Admins WHERE id = ?;", [account.id]) != null)
+    if (db_get(db_auth, "SELECT id FROM Admins WHERE id = ?;", [account.id]) != null)
         return ROLE.ADMIN;
-    if (db_get(db_auth, "SELECT FROM Supervisors WHERE id = ?;", [account.id]) != null)
+    if (db_get(db_auth, "SELECT id FROM Supervisors WHERE id = ?;", [account.id]) != null)
         return ROLE.SUPERVISOR;
-    if (db_get(db_auth, "SELECT FROM Students WHERE id = ?;", [account.id]) != null)
+    if (db_get(db_auth, "SELECT id FROM Students WHERE id = ?;", [account.id]) != null)
         return ROLE.STUDENT;
-    if (db_get(db_auth, "SELECT FROM Companies WHERE id = ?;", [account.id]) != null)
+    if (db_get(db_auth, "SELECT id FROM Companies WHERE id = ?;", [account.id]) != null)
         return ROLE.COMPANY;
     return "can't find role";
 }
@@ -237,7 +238,7 @@ function get_account(email)
     const account = db_get(db_auth, "SELECT * FROM Accounts WHERE email = ?;", [email]);
     if (account === null)
     {
-        console.error("create_login_token err("+account+"): no email: " + email);
+        console.error("create_login_token no email: " + email);
         return "email not found";
     }
     return account;

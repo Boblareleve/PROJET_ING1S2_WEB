@@ -6,11 +6,6 @@
 // easy get/post/... request
 const express = require('express');
 
-// database
-// const sqlite3 = require('sqlite3');
-
-// download files ?
-const path = require('path');
 
 
 let app = express();
