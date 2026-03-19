@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS Tokens
 (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     account_id      INTEGER NOT NULL,
-    -- email           TEXT NOT NULL, -- to ref Accounts
     expiration      INTEGER,
     token           TEXT,
     
