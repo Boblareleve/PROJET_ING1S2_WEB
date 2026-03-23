@@ -182,6 +182,7 @@ function jwt_verify(token, secret)
 
 // refresh access token if necessary
 // null on error
+// return user email
 function is_connected(req, res)
 {
     let tk_access  = res.cookies.token_access;

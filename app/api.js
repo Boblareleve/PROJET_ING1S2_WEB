@@ -18,7 +18,22 @@ router.use(cookieParser());
 // console.log(typeof router);
 
 
-router.get('/download/:filename', (req, res) =>
+// add middel ware when connections needed
+function auth(req, res, next)
+{
+    req.email = is_connected(req, res);
+    if (req.email === null)
+    {
+        console.log("auth failed");
+        return res.status(401).send("disconnected");
+    }
+    
+    console.log(`auth user "${req.email}"`);
+    next();
+}
+
+
+router.get('/download/:filename', auth, (req, res) =>
 {
     // sanitize to prevent path traversal attacks (../../etc/passwd)
     const filename = path.basename(req.params.filename)
