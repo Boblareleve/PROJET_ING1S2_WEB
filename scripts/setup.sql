@@ -1,22 +1,22 @@
 
-CREATE TABLE IF NOT EXISTS Accounts
+CREATE TABLE Accounts
 (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     email         TEXT UNIQUE NOT NULL,
-    password_hash TEXT
+    password_hash TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Tokens
+CREATE TABLE Tokens
 (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     account_id      INTEGER NOT NULL,
-    expiration      INTEGER,
-    token           TEXT,
+    expiration      INTEGER NOT NULL,
+    token           TEXT UNIQUE NOT NULL,
     
     FOREIGN KEY (account_id) REFERENCES Accounts(id)
 );
 
-CREATE TABLE IF NOT EXISTS Persons
+CREATE TABLE Persons
 (
     id         INTEGER PRIMARY KEY,
     first_name TEXT NOT NULL,
@@ -26,28 +26,28 @@ CREATE TABLE IF NOT EXISTS Persons
 );
 
 
-CREATE TABLE IF NOT EXISTS Admins
+CREATE TABLE Admins
 (
     id INTEGER PRIMARY KEY,
     
     FOREIGN KEY (id) REFERENCES Accounts(id)
 );
 
-CREATE TABLE IF NOT EXISTS Supervisors
+CREATE TABLE Supervisors
 (
     id INTEGER PRIMARY KEY,
     
     FOREIGN KEY (id) REFERENCES Accounts(id)
 );
 
-CREATE TABLE IF NOT EXISTS Students
+CREATE TABLE Students
 (
     id INTEGER PRIMARY KEY,
     
     FOREIGN KEY (id) REFERENCES Accounts(id)
 );
 
-CREATE TABLE IF NOT EXISTS Companies
+CREATE TABLE Companies
 (
     id INTEGER PRIMARY KEY,
     
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS Companies
 
 
 
-CREATE TABLE IF NOT EXISTS Offers
+CREATE TABLE Offers
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     company_id INTEGER NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS Offers
     FOREIGN KEY (company_id) REFERENCES Companies(id)
 );
 
-CREATE TABLE IF NOT EXISTS Report_card
+CREATE TABLE Report_card
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id INTEGER NOT NULL,
@@ -76,19 +76,19 @@ CREATE TABLE IF NOT EXISTS Report_card
     FOREIGN KEY (student_id) REFERENCES Students(id)
 );
 
-CREATE TABLE IF NOT EXISTS Internship
+CREATE TABLE Internship
 (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    company_id INTEGER NOT NULL,
-    domain_id  INTEGER,
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id  INTEGER NOT NULL,
+    domain_id   INTEGER,
     
     FOREIGN KEY (company_id) REFERENCES Companies(id)
     FOREIGN KEY (domain_id)  REFERENCES Domains(id)
 );
 
-CREATE TABLE IF NOT EXISTS Internship_files
+CREATE TABLE Internship_files
 (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id      INTEGER NOT NULL,
     internship_id   INTEGER NOT NULL,
     tutor_id        INTEGER,
@@ -99,10 +99,10 @@ CREATE TABLE IF NOT EXISTS Internship_files
 );
 
 
-CREATE TABLE IF NOT EXISTS Documents
+CREATE TABLE Documents
 (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    internship_file_id INTEGER NOT NULL,
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    internship_file_id  INTEGER NOT NULL,
     
     file_path   TEXT,
     type_id     INTEGER NOT NULL,
@@ -112,14 +112,14 @@ CREATE TABLE IF NOT EXISTS Documents
 );
 
 
-CREATE TABLE IF NOT EXISTS Document_types
+CREATE TABLE Document_types
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     
     info TEXT
 );
 
-CREATE TABLE IF NOT EXISTS Domains
+CREATE TABLE Domains
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 

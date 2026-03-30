@@ -6,11 +6,6 @@
 // easy get/post/... request
 const express = require('express');
 
-// database
-// const sqlite3 = require('sqlite3');
-
-// download files ?
-const path = require('path');
 
 
 let app = express();
@@ -18,9 +13,9 @@ const port = 8000;
 
 
 // get where to find url
-const { apiRouter, authRouter } = require('./api.js');
+const { apiRouter, authRouter } = require('./api.ts');
 
-// // activate
+// activate
 app.use('/api', apiRouter);
 app.use('/auth', authRouter);
 
