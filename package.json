@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite &\nnode app/server.js &",
+    "kill": "pkill -f vite; pkill -f node",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
