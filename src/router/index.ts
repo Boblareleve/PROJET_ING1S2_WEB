@@ -22,13 +22,13 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginPage,
-      meta: {requiresAuth:false}
+      meta: {requiresAuth: false}
     },
     {
       path: '/teacher',
       name: 'teacher',
       component: homeTeacher,
-      meta:{requiresAuth:true, role:'teacher'}
+      meta:{requiresAuth: true, role:'teacher'}
     }
   ],
 })
