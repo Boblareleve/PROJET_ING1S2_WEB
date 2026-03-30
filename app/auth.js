@@ -23,12 +23,12 @@ const JWT_AC_SECRET    = process.env.JWT_SECRET || 'your---secdret-key';
 const JWT_RE_SECRET = process.env.JWT_RE_SECRET || 'y--secdret-key';
 
 
-const token = "token";
+// const token = "token";
 const cookie_token_access  = "token_access"
 const cookie_token_refresh = "token_refresh"
 
 const refresh_timeout = 7 * 24 * 60 * 60 * 1000; // 7d
-const access_timeout  = 10 * 60 * 1000;          // 10min
+const access_timeout  =          10 * 60 * 1000; // 10min
 
 
 
@@ -56,7 +56,7 @@ router.post("/login", async (req, res) =>
         const is_account_verified = verify_password(account, req.body.password);
         if (typeof is_account_verified === 'string') throw is_account_verified;
 
-        const role = get_role(account);
+        const role = get_role(account)[0];
         if (typeof role === 'string') throw role;
 
         const refresh_token = jwt.sign({ email: account.email }, JWT_RE_SECRET);
@@ -86,11 +86,8 @@ router.post("/login", async (req, res) =>
 // {
 //     if (is_connected(req, res))
 //         res.header(401).send("logged out");
-
 //     res.send("token refreshed");
 // });
-
-
 
 
 function delete_all_tokens()
@@ -185,8 +182,8 @@ function jwt_verify(token, secret)
 // return user email
 function is_connected(req, res)
 {
-    let tk_access  = res.cookies.token_access;
-    let tk_refresh = res.cookies.token_refresh;
+    let tk_access  = req.cookies.token_access;
+    let tk_refresh = req.cookies.token_refresh;
 
     let payload = jwt_verify(tk_access, JWT_AC_SECRET);
     if (payload === null)
@@ -220,18 +217,18 @@ function is_connected(req, res)
     return payload.email;
 }
 
-
 function get_role(account)
 {
-    if (db_get(db_auth, "SELECT id FROM Admins WHERE id = ?;", [account.id]) != null)
-        return ROLE.ADMIN;
-    if (db_get(db_auth, "SELECT id FROM Supervisors WHERE id = ?;", [account.id]) != null)
-        return ROLE.SUPERVISOR;
-    if (db_get(db_auth, "SELECT id FROM Students WHERE id = ?;", [account.id]) != null)
-        return ROLE.STUDENT;
-    if (db_get(db_auth, "SELECT id FROM Companies WHERE id = ?;", [account.id]) != null)
-        return ROLE.COMPANY;
-    return "can't find role";
+    let res = null;
+    if (db_get(db_auth, "SELECT * FROM Admins WHERE id = ?;",       [account.id]) != null)
+        return [ROLE.ADMIN,      res];
+    if (db_get(db_auth, "SELECT * FROM Supervisors WHERE id = ?;",  [account.id]) != null)
+        return [ROLE.SUPERVISOR, res];
+    if (db_get(db_auth, "SELECT * FROM Students WHERE id = ?;",     [account.id]) != null)
+        return [ROLE.STUDENT,    res];
+    if (db_get(db_auth, "SELECT * FROM Companies WHERE id = ?;",    [account.id]) != null)
+        return [ROLE.COMPANY,    res];
+    return ["can't find role", res];
 }
 
 function get_account(email)
@@ -269,5 +266,18 @@ function put_token_in_db(account_id, refresh_token)
     return true;
 }
 
+// add middel ware when connections needed
+function auth(req, res, next)
+{
+    req.email = is_connected(req, res);
+    if (req.email === null)
+    {
+        console.log("auth failed");
+        return res.status(401).send("disconnected");
+    }
+    
+    console.log(`auth user "${req.email}"`);
+    next();
+}
 
-module.exports = { is_connected, authRouter: router };
+module.exports = { is_connected, auth, authRouter: router };

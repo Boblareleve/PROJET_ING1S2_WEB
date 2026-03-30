@@ -2,7 +2,7 @@
 	"nodes":[
 		{"id":"bd34085defe6a2e1","type":"text","text":"Offre de stage:\n* date\n* status ","x":-3552,"y":675,"width":250,"height":180},
 		{"id":"8adaccbfe9d04be0","type":"text","text":"Entreprise\n* site (url)\n* ...\n","x":-3552,"y":431,"width":250,"height":160},
-		{"id":"657fb9151688c7e7","type":"text","text":"dossier de stage\n+ étape de suivie (vide, intéressé, ...)","x":-3677,"y":994,"width":375,"height":166},
+		{"id":"657fb9151688c7e7","type":"text","text":"dossier de stage\n+ étape de suivie (vide, intéressé, ...)","x":-3677,"y":994,"width":397,"height":166},
 		{"id":"cc7f0d3fc512798b","type":"text","text":"Domaine\n+ intitulé","x":-3840,"y":536,"width":250,"height":112},
 		{"id":"d9e5850047870d44","type":"text","text":"Encadrant","x":-3160,"y":754,"width":250,"height":60},
 		{"id":"4fb75df50292a824","type":"text","text":"Etudiant\n+ num étu","x":-3160,"y":880,"width":250,"height":114},
