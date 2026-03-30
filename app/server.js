@@ -13,7 +13,8 @@ const port = 8000;
 
 
 // get where to find url
-import { apiRouter, authRouter } from './api.ts'
+import { apiRouter } from './api.ts'
+import { authRouter } from './auth.js';
 
 // activate
 app.use('/api', apiRouter);

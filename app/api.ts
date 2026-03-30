@@ -5,12 +5,13 @@ import { ROLE } from '../share/role.js'
 // download files ?
 import path from 'path'
 
-import { db_get, db_run, db_get_all } from './db_wrapper.js'
-import { auth, authRouter } from 'auth.js'
-const router = express.Router();
+import { db_get, db_run, db_get_all } from './db/db_wrapper.js'
+import { auth } from './auth.js'
+export const apiRouter = express.Router();
 
-router.use(express.json());
-router.use(cookieParser());
+
+apiRouter.use(express.json());
+apiRouter.use(cookieParser());
 
 import sqlite3 from 'better-sqlite3'
 const db = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
@@ -58,13 +59,13 @@ function get_(email : string)
 }
 
 
-router.get('/me', auth, (req : any, res : any) =>
+apiRouter.get('/me', auth, (req : any, res : any) =>
 {
     const account: Account = { id: 0, email: "", role: 0, info: null };
     res.send(account);
 });
 
-router.get('/download/:filename', auth, (req : any, res : any) =>
+apiRouter.get('/download/:filename', auth, (req : any, res : any) =>
 {
     // sanitize to prevent path traversal attacks (../../etc/passwd)
     const filename = path.basename(req.body.filename);
@@ -91,8 +92,5 @@ router.get('/download/:filename', auth, (req : any, res : any) =>
         if (err) res.status(404).json({ error: 'File ' + filename + ' not found' });
     })
 })
-
-
-module.exports = { apiRouter: router, authRouter };
 
 

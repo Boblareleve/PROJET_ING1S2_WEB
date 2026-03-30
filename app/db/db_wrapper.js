@@ -3,7 +3,7 @@
 // first result
 // null on error/not found
 // object otherwise
-function db_get(db, sql, params)
+export function db_get(db, sql, params)
 {
     try
     {
@@ -20,7 +20,7 @@ function db_get(db, sql, params)
 }
 
 // !== true on error
-function db_run(db, sql, params)
+export function db_run(db, sql, params)
 {
     try {
         db.prepare(sql).run(params);
@@ -36,7 +36,7 @@ function db_run(db, sql, params)
 // all result
 // null on error/not found
 // object otherwise
-function db_get_all(db, sql, params)
+export function db_get_all(db, sql, params)
 {
     try
     {
@@ -52,5 +52,3 @@ function db_get_all(db, sql, params)
     }
 }
 
-
-module.exports = { db_get, db_get_all, db_run };
