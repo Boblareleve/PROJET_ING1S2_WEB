@@ -57,6 +57,13 @@ function get_(email : string)
     get_role();
 }
 
+
+router.get('/me', auth, (req : any, res : any) =>
+{
+    const account: Account = {};
+    res.send(account);
+});
+
 router.get('/download/:filename', auth, (req : any, res : any) =>
 {
     // sanitize to prevent path traversal attacks (../../etc/passwd)
