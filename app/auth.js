@@ -1,11 +1,11 @@
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
-const express = require('express');
-const sqlite3 = require("better-sqlite3");
-const sha256 = require('js-sha256'); 
+import jwt from 'jsonwebtoken'
+import cookieParser from 'cookie-parser'
+import express from 'express'
+import sqlite3 from "better-sqlite3"
+import sha256 from 'js-sha256'
 
-const { db_get, db_run, db_get_all } = require("./db/db_wrapper.js");
-const { ROLE } = require('../share/role.js');
+import { db_get, db_run, db_get_all } from "./db/db_wrapper.js"
+import { ROLE } from '../share/role.js'
 
 const db_auth = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
 if (!db_auth) console.error("Can't open database ./var/db.db");

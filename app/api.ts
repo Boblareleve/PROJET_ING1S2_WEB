@@ -1,18 +1,18 @@
-const express = require('express');
-const cookieParser = require('cookie-parser');
-const { ROLE } = require('../share/role.js');
+import express from 'express'
+import cookieParser from 'cookie-parser'
+import { ROLE } from '../share/role.js'
 
 // download files ?
-const path = require('path');
+import path from 'path'
 
-const { db_get, db_run, db_get_all } = require('./db_wrapper.js');
-const { auth, authRouter } = require('./auth.js');
-const router  = express.Router();
+import { db_get, db_run, db_get_all } from './db_wrapper.js'
+import { auth, authRouter } from 'auth.js'
+const router = express.Router();
 
 router.use(express.json());
 router.use(cookieParser());
 
-const sqlite3 = require('better-sqlite3');
+import sqlite3 from 'better-sqlite3'
 const db = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
 if (!db) console.error("Can't open database ./var/db.db");
 db.pragma("foreign_keys = ON");
@@ -45,7 +45,7 @@ interface Account {
     id    : number,
     email : string,
     role  : number, // ROLE
-    info  : Persons | Companies,
+    info  : Persons | Companies | null,
 };
 
 function get_(email : string)
@@ -60,7 +60,7 @@ function get_(email : string)
 
 router.get('/me', auth, (req : any, res : any) =>
 {
-    const account: Account = {};
+    const account: Account = { id: 0, email: "", role: 0, info: null };
     res.send(account);
 });
 
