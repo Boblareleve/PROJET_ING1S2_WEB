@@ -4,7 +4,7 @@
 // const fs = require("fs");
 
 // easy get/post/... request
-const express = require('express');
+import express from 'express'
 
 
 
@@ -13,7 +13,8 @@ const port = 8000;
 
 
 // get where to find url
-const { apiRouter, authRouter } = require('./api.ts');
+import { apiRouter } from './api.ts'
+import { authRouter } from './auth.js';
 
 // activate
 app.use('/api', apiRouter);
@@ -21,8 +22,8 @@ app.use('/auth', authRouter);
 
 
 // static directory
-app.use(express.static('public'));
-app.use(express.static('share'));
+// app.use(express.static('public'));
+// app.use(express.static('share'));
 
 // start server
 app.listen(port, () => { console.log('Server running on http://localhost:' + port) });

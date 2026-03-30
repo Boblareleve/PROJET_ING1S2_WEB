@@ -1,22 +1,21 @@
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
-const express = require('express');
-const sqlite3 = require("better-sqlite3");
-const sha256 = require('js-sha256'); 
+import jwt from 'jsonwebtoken'
+import cookieParser from 'cookie-parser'
+import express from 'express'
+import sqlite3 from "better-sqlite3"
+import sha256 from 'js-sha256'
 
-const { db_get, db_run, db_get_all } = require("./db/db_wrapper.js");
-const { ROLE } = require('../share/role.js');
+import { db_get, db_run, db_get_all } from "./db/db_wrapper.js"
+import { ROLE } from '../share/role.js'
 
 const db_auth = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
 if (!db_auth) console.error("Can't open database ./var/db.db");
 db_auth.pragma("foreign_keys = ON");
 
 
+export const authRouter = express.Router();
 
-const router = express.Router();
-
-router.use(express.json());
-router.use(cookieParser());
+authRouter.use(express.json());
+authRouter.use(cookieParser());
 
 
 const JWT_AC_SECRET    = process.env.JWT_SECRET || 'your---secdret-key';
@@ -33,7 +32,7 @@ const access_timeout  =          10 * 60 * 1000; // 10min
 
 
 
-router.delete("/logout", async (req, res) =>
+authRouter.delete("/logout", async (req, res) =>
 {
     clear_cookies(res);
     
@@ -43,7 +42,7 @@ router.delete("/logout", async (req, res) =>
     res.end();
 });
 
-router.post("/login", async (req, res) =>
+authRouter.post("/login", async (req, res) =>
 {
     console.log(`req..email: ${req.body.email}; req..password: ${req.body.password}`);
     
@@ -180,7 +179,7 @@ function jwt_verify(token, secret)
 // refresh access token if necessary
 // null on error
 // return user email
-function is_connected(req, res)
+export function is_connected(req, res)
 {
     let tk_access  = req.cookies.token_access;
     let tk_refresh = req.cookies.token_refresh;
@@ -267,7 +266,7 @@ function put_token_in_db(account_id, refresh_token)
 }
 
 // add middel ware when connections needed
-function auth(req, res, next)
+export function auth(req, res, next)
 {
     req.email = is_connected(req, res);
     if (req.email === null)
@@ -279,5 +278,3 @@ function auth(req, res, next)
     console.log(`auth user "${req.email}"`);
     next();
 }
-
-module.exports = { is_connected, auth, authRouter: router };
