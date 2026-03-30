@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from '@/views/LoginPage.vue'
 import homeTeacher from '@/views/homeTeacher.vue'
 import { useAuthStore } from '@/auth/auth'
+
+
 declare module 'vue-router'{
   interface RouteMeta{
     requiresAuth:boolean
@@ -12,7 +14,7 @@ declare module 'vue-router'{
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
+	{
       path: '/',
       redirect: '/login',
     },

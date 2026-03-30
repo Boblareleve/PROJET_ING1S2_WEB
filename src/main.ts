@@ -12,7 +12,6 @@ app.use(router)
 
 async function init(){
     const auth=useAuthStore()
-    await auth.fakeLogin('teacher')
     app.mount('#app')
 }
 
