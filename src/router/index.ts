@@ -17,6 +17,12 @@ const router = createRouter({
       redirect: '/login',
     },
     {
+      path: '/login',
+      name: 'login',
+      component: LoginPage,
+      meta: {requiresAuth:false}
+    },
+    {
       path: '/teacher',
       name: 'teacher',
       component: homeTeacher,
