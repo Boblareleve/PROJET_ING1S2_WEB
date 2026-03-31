@@ -36,22 +36,11 @@ function get_folder(folder : number)
 }
 
 
-interface Persons {
-    first_name : string,
-    last_name : string
-};
-
-interface Companies {
-    url : string
-};
 
 
-interface Account {
-    id    : number,
-    email : string,
-    role  : number, // ROLE
-    info  : Persons | Companies | null,
-};
+
+
+
 
 function get_(email : string)
 {
