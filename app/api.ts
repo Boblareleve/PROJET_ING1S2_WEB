@@ -14,7 +14,11 @@ apiRouter.use(express.json());
 apiRouter.use(cookieParser());
 
 import sqlite3 from 'better-sqlite3'
-const db = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
+const db = new sqlite3(
+    // path.resolve(__dirname, "./var/db.db"),
+    "./var/db.db",
+    sqlite3.OPEN_READWRITE
+); // no create
 if (!db) console.error("Can't open database ./var/db.db");
 db.pragma("foreign_keys = ON");
 

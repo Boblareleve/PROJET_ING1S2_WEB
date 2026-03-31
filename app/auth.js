@@ -4,10 +4,17 @@ import express from 'express'
 import sqlite3 from "better-sqlite3"
 import sha256 from 'js-sha256'
 
+import path from 'path'
+
 import { db_get, db_run, db_get_all } from "./db/db_wrapper.js"
 import { ROLE } from '../share/role.js'
 
-const db_auth = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
+const db_auth = new sqlite3(
+    // path.resolve(__dirname, "./var/db.db"),
+    "./var/db.db",
+    sqlite3.OPEN_READWRITE
+);
+
 if (!db_auth) console.error("Can't open database ./var/db.db");
 db_auth.pragma("foreign_keys = ON");
 
@@ -250,6 +257,7 @@ function verify_password(account, password)
 
 function put_token_in_db(account_id, refresh_token) 
 {
+    console.log("dfqmligjqerlk\n");
     const expire_time = Date.now() + refresh_timeout;
     if (db_run(db_auth,
         `
@@ -258,7 +266,7 @@ function put_token_in_db(account_id, refresh_token)
             ON CONFLICT(token) 
                 DO UPDATE SET expiration = ?;
         `,
-        [...[account_id, refresh_token, expire_time], expire_time]
+        [account_id, refresh_token, expire_time, expire_time]
     ) === null)
         return "can't add new refresh token in db";
 
