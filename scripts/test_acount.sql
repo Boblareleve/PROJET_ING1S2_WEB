@@ -5,3 +5,7 @@ VALUES
 
 INSERT INTO Admins (id)
     SELECT id FROM Accounts WHERE "augustin.denuce@gmail.com" = email;
+
+
+INSERT INTO Admins (id)
+    SELECT id FROM Accounts WHERE "quentin82.donier@gmail.com" = email;
