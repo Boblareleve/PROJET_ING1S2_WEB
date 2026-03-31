@@ -6,8 +6,8 @@ import sha256 from 'js-sha256'
 
 import path from 'path'
 
-import { db_get, db_run, db_get_all } from "./db/db_wrapper.js"
-import { ROLE } from '../share/role.js'
+import { db_get, db_run, db_get_all } from "./db/db_wrapper.ts"
+import { ROLE } from '../share/role.ts'
 
 const db_auth = new sqlite3(
     // path.resolve(__dirname, "./var/db.db"),
