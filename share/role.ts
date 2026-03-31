@@ -1,16 +1,16 @@
 
 
-export interface Admins {};
-export interface Supervisors {};
-export interface Students {};
+export interface Admin {};
+export interface Supervisor {};
+export interface Student {};
 
-export interface Persons {
+export interface Person {
     first_name : string,
     last_name : string,
-    info : Admins | Supervisors | Students,
+    info : Admin | Supervisor | Student,
 };
 
-export interface Companies {
+export interface Companie {
     url : string,
 };
 
@@ -18,8 +18,9 @@ export interface Companies {
 export interface Account {
     id    : number,
     email : string,
+    password_hash : string | null,
     role  : number, // ROLE
-    info  : Persons | Companies | null,
+    info  : Person | Companie | null,
 };
 
 

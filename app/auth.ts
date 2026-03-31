@@ -1,15 +1,18 @@
 import jwt from 'jsonwebtoken'
 import cookieParser from 'cookie-parser'
 import express from 'express'
-import sqlite3 from "better-sqlite3"
-import sha256 from 'js-sha256'
+import sqlite3 from 'better-sqlite3'
 
-import path from 'path'
+import { createHash } from 'crypto'
+// import sha256 from 'js-sha256'
+
+// import path from 'path'
+
 
 import { db_get, db_run, db_get_all } from "./db/db_wrapper.ts"
-import { ROLE } from '../share/role.ts'
+import * as role from '../share/role.ts'
 
-const db_auth = new sqlite3(
+const db_auth : BetterSqlite3.Database = new sqlite3(
     // path.resolve(__dirname, "./var/db.db"),
     "./var/db.db",
     sqlite3.OPEN_READWRITE
@@ -19,27 +22,27 @@ if (!db_auth) console.error("Can't open database ./var/db.db");
 db_auth.pragma("foreign_keys = ON");
 
 
-export const authRouter = express.Router();
+export const authRouter: Router = express.Router();
 
 authRouter.use(express.json());
 authRouter.use(cookieParser());
 
 
-const JWT_AC_SECRET    = process.env.JWT_SECRET || 'your---secdret-key';
-const JWT_RE_SECRET = process.env.JWT_RE_SECRET || 'y--secdret-key';
+const JWT_AC_SECRET: string = process.env.JWT_SECRET || 'your---secdret-key';
+const JWT_RE_SECRET: string = process.env.JWT_RE_SECRET || 'y--secdret-key';
 
 
 // const token = "token";
-const cookie_token_access  = "token_access"
-const cookie_token_refresh = "token_refresh"
+const cookie_token_access: string  = "token_access"
+const cookie_token_refresh: string = "token_refresh"
 
-const refresh_timeout = 7 * 24 * 60 * 60 * 1000; // 7d
-const access_timeout  =          10 * 60 * 1000; // 10min
-
-
+const refresh_timeout: number = 7 * 24 * 60 * 60 * 1000; // 7d
+const access_timeout: number  =          10 * 60 * 1000; // 10min
 
 
-authRouter.delete("/logout", async (req, res) =>
+
+
+authRouter.delete("/logout", async (req : any, res : any) =>
 {
     clear_cookies(res);
     
@@ -49,35 +52,34 @@ authRouter.delete("/logout", async (req, res) =>
     res.end();
 });
 
-authRouter.post("/login", async (req, res) =>
+authRouter.post("/login", async (req : any, res : any) =>
 {
     console.log(`req..email: ${req.body.email}; req..password: ${req.body.password}`);
     
     try {
         // all functions called there return a string on error
 
-        const account = get_account(req.body.email);
+        let account = get_account(req.body.email);
         if (typeof account === 'string') throw account;
 
-        const is_account_verified = verify_password(account, req.body.password);
-        if (typeof is_account_verified === 'string') throw is_account_verified;
+        account = verify_password(account, req.body.password);
+        if (typeof account === 'string') throw account;
 
-        const role = get_role(account)[0];
-        if (typeof role === 'string') throw role;
+        account = get_role(account);
+        if (typeof account === 'string') throw account;
 
         const refresh_token = jwt.sign({ email: account.email }, JWT_RE_SECRET);
 
         const is_in_db = put_token_in_db(account.id, refresh_token);
         if (typeof is_in_db === 'string') throw is_in_db;
         
-
         set_cookies(res,
             jwt.sign({ email: req.body.email }, JWT_AC_SECRET, { expiresIn: access_timeout }), 
             refresh_token
         );
 
-        console.log("role: " + role);
-        return res.send({ role: role });
+        console.log("info: " + JSON.stringify(account));
+        return res.send(account);
     }
     catch (err)
     {
@@ -98,7 +100,7 @@ authRouter.post("/login", async (req, res) =>
 
 function delete_all_tokens()
 {
-    if (null === db_run(db_auth, `TRUNCATE TABLE RTokens;`))
+    if (null === db_run(db_auth, `TRUNCATE TABLE RTokens;`, []))
         console.error("Failed to truncate RTokens");
 }
 
@@ -112,14 +114,14 @@ function delete_expired_tokens()
         console.error("Deleting expiered tokens");
 }
 
-function delete_db_token(token) 
+function delete_db_token(token : string) 
 {
     try {
         const payload = jwt.verify(token, JWT_RE_SECRET);
 
         if (null === db_run(db_auth,
             `DELETE FROM Tokens WHERE token = ?;`,
-            [playload /* .TODO */]
+            [payload /* .TODO */]
         ))
             return null;
     }
@@ -131,7 +133,7 @@ function delete_db_token(token)
 }
 
 
-function set_cookies(res, access_token, refresh_token)
+function set_cookies(res : any, access_token : string, refresh_token : string)
 {
     res.cookie(cookie_token_refresh, refresh_token, {
         httpOnly: true,
@@ -146,12 +148,12 @@ function set_cookies(res, access_token, refresh_token)
         maxAge: access_timeout // 10m
     });
 }
-function clear_cookies(res)
+function clear_cookies(res : any)
 {
     res.clearCookie(cookie_token_refresh);
     res.clearCookie(cookie_token_access);
 }
-function is_token_db_valid(tk)
+function is_token_db_valid(tk : string)
 {
     const db_tk = db_get(db_auth, `
         SELECT expiration 
@@ -172,7 +174,7 @@ function is_token_db_valid(tk)
     return true;
 }
 
-function jwt_verify(token, secret)
+function jwt_verify(token : string, secret : string) : any | null
 {
     try
     {
@@ -186,7 +188,7 @@ function jwt_verify(token, secret)
 // refresh access token if necessary
 // null on error
 // return user email
-export function is_connected(req, res)
+export function is_connected(req : any, res : any) : null | string
 {
     let tk_access  = req.cookies.token_access;
     let tk_refresh = req.cookies.token_refresh;
@@ -202,11 +204,11 @@ export function is_connected(req, res)
             clear_cookies(res);
             return null;
         }
-
+        
         payload = jwt_verify(tk_refresh, JWT_RE_SECRET);
         if (payload === null)
         {
-            console.log("invalid refresh token in db err("+err+") " + tk_refresh);
+            console.log("invalid refresh token in db: " + tk_refresh);
             clear_cookies(res);
             return null;
         }
@@ -223,42 +225,59 @@ export function is_connected(req, res)
     return payload.email;
 }
 
-function get_role(account)
+function get_role(account : role.Account) : role.Account | string
 {
-    let res = null;
-    if (db_get(db_auth, "SELECT * FROM Admins WHERE id = ?;",       [account.id]) != null)
-        return [ROLE.ADMIN,      res];
-    if (db_get(db_auth, "SELECT * FROM Supervisors WHERE id = ?;",  [account.id]) != null)
-        return [ROLE.SUPERVISOR, res];
-    if (db_get(db_auth, "SELECT * FROM Students WHERE id = ?;",     [account.id]) != null)
-        return [ROLE.STUDENT,    res];
-    if (db_get(db_auth, "SELECT * FROM Companies WHERE id = ?;",    [account.id]) != null)
-        return [ROLE.COMPANY,    res];
-    return ["can't find role", res];
+    let res : any = null;
+    if (res = db_get(db_auth, "SELECT * FROM Companies WHERE id = ?;",    [account.id]) != null)
+    {
+        account.role = role.ROLE.COMPANY;
+        account.info = { url: res.url_site };
+        return account; 
+    }
+    if (res = db_get(db_auth, "SELECT * FROM Admins WHERE id = ?;",       [account.id]) == null)
+        return "can't find role";
+
+    
+    account.info = {
+        first_name: res.first_name,
+        last_name: res.last_name,
+        info: {}
+    };
+
+    if (res = db_get(db_auth, "SELECT * FROM Admins WHERE id = ?;",       [account.id]) != null)
+        return { ...account, role: role.ROLE.ADMIN };
+    if (res = db_get(db_auth, "SELECT * FROM Supervisors WHERE id = ?;",  [account.id]) != null)
+        return { ...account, role: role.ROLE.SUPERVISOR };
+    if (res = db_get(db_auth, "SELECT * FROM Students WHERE id = ?;",     [account.id]) != null)
+        return { ...account, role: role.ROLE.STUDENT };
+
+    return "can't find role";
 }
 
-function get_account(email)
+
+// get the account row in db
+function get_account(email : string) : role.Account | string
 {
-    const account = db_get(db_auth, "SELECT * FROM Accounts WHERE email = ?;", [email]);
-    if (account === null)
+    const db_account = db_get(db_auth, "SELECT * FROM Accounts WHERE email = ?;", [email]);
+    if (db_account === null)
     {
         console.error("create_login_token no email: " + email);
         return "email not found";
     }
-    return account;
+    return { ...db_account };
 }
 
-function verify_password(account, password)
-{   
-    if (account.password_hash != sha256.hex(password))
-        return "password missmatch";
-    return account;
-}
-
-function put_token_in_db(account_id, refresh_token) 
+function verify_password(account : role.Account, password : string) : role.Account | string
 {
-    console.log("dfqmligjqerlk\n");
-    const expire_time = Date.now() + refresh_timeout;
+    if (account.password_hash != createHash('sha256').update(password).digest('hex')) // sha256.hex(password))
+        return "password missmatch";
+    account.password_hash = null; // forget for security
+    return account;
+}
+
+function put_token_in_db(account_id : number, refresh_token : string) : true | string
+{
+    const expire_time : number = Date.now() + refresh_timeout;
     if (db_run(db_auth,
         `
             INSERT INTO Tokens (account_id, token, expiration)
@@ -273,8 +292,8 @@ function put_token_in_db(account_id, refresh_token)
     return true;
 }
 
-// add middel ware when connections needed
-export function auth(req, res, next)
+// add middelware when connections needed
+export function auth(req : any, res : any, next : Function)
 {
     req.email = is_connected(req, res);
     if (req.email === null)
