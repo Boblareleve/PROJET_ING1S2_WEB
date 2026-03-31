@@ -1,7 +1,3 @@
-// const http = require('http');
-// const jwt = require('jsonwebtoken');
-// const cookieParser = require('cookie-parser');
-// const fs = require("fs");
 
 // easy get/post/... request
 import express from 'express'
@@ -27,6 +23,4 @@ app.use('/auth', authRouter);
 
 // start server
 app.listen(port, () => { console.log('Server running on http://localhost:' + port) });
-
-
 
