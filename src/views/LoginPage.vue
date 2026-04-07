@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAuthStore } from '@/auth/auth'
 import { ref } from 'vue'
 
 const showPassword = ref(false)
@@ -28,7 +29,14 @@ async function handleLogin() {
         console.error(`HTTP ${res.status}: ${text}`);
         return ;
     }
+    const auth = useAuthStore()
 
+    if(res.ok){
+      const user = await res.json()
+      auth.user = user
+    }
+
+    
     console.log("connected !");
 
 }

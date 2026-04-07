@@ -12,6 +12,10 @@ const auth = useAuthStore()
   <div>
     <p>Bonjour {{ auth.user?.nom }}</p>
   </div>
+
+  <div>
+    
+  </div>
 </template>
 
 <style scoped>

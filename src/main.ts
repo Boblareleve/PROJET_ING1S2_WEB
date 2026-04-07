@@ -12,7 +12,7 @@ app.use(router)
 
 async function init(){
     const auth = useAuthStore()
-    await auth.fakeLogin('teacher')
+    await auth.fetchCurrentUser()
     app.mount('#app')
 }
 

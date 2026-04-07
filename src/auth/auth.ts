@@ -18,9 +18,16 @@ export const useAuthStore = defineStore('auth', {
     actions: {
         async fetchCurrentUser(){
             this.isLoading = true
-            const res = await fetch('fetch avec backend')
-            this.user = await res.json()
-            this.isLoading = false
+            try {
+                const res = await fetch('/api/auth/me')
+                if (!res.ok) throw new Error('Failed to fetch user')
+                this.user = await res.json()
+            } catch (error) {
+                console.error('Error fetching current user:', error)
+                this.user = null
+            } finally {
+                this.isLoading = false
+            }
         },
         fakeLogin(role: 'admin' | 'teacher' | 'student') {
             if (role === 'teacher') this.user = { nom: 'Test', role: 'teacher'}
