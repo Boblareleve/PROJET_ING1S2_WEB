@@ -1,6 +1,6 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
-import { Account } from '../share/role.ts'
+import type { Account } from '../share/role.ts'
 
 // download files ?
 import path from 'path'
