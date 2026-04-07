@@ -1,12 +1,12 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
-import { ROLE } from '../share/role.js'
+import { ROLE } from '../share/role.ts'
 
 // download files ?
 import path from 'path'
 
-import { db_get, db_run, db_get_all } from './db/db_wrapper.js'
-import { auth } from './auth.js'
+import { db_get, db_run, db_get_all } from './db/db_wrapper.ts'
+import { auth } from './auth.ts'
 export const apiRouter = express.Router();
 
 
@@ -14,7 +14,11 @@ apiRouter.use(express.json());
 apiRouter.use(cookieParser());
 
 import sqlite3 from 'better-sqlite3'
-const db = new sqlite3("./var/db.db", sqlite3.OPEN_READWRITE); // no create
+const db = new sqlite3(
+    // path.resolve(__dirname, "./var/db.db"),
+    "./var/db.db",
+    sqlite3.OPEN_READWRITE
+); // no create
 if (!db) console.error("Can't open database ./var/db.db");
 db.pragma("foreign_keys = ON");
 
@@ -32,22 +36,11 @@ function get_folder(folder : number)
 }
 
 
-interface Persons {
-    first_name : string,
-    last_name : string
-};
-
-interface Companies {
-    url : string
-};
 
 
-interface Account {
-    id    : number,
-    email : string,
-    role  : number, // ROLE
-    info  : Persons | Companies | null,
-};
+
+
+
 
 function get_(email : string)
 {
