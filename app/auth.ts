@@ -12,17 +12,13 @@ import { createHash } from 'crypto'
 import { db_get, db_run, db_get_all } from "./db/db_wrapper.ts"
 import * as role from '../share/role.ts'
 
-const db_auth : BetterSqlite3.Database = new sqlite3(
-    // path.resolve(__dirname, "./var/db.db"),
-    "./var/db.db",
-    sqlite3.OPEN_READWRITE
-);
+const db_auth: sqlite3.Database = new sqlite3("./var/db.db");
 
 if (!db_auth) console.error("Can't open database ./var/db.db");
 db_auth.pragma("foreign_keys = ON");
 
 
-export const authRouter: Router = express.Router();
+export const authRouter: express.Router = express.Router();
 
 authRouter.use(express.json());
 authRouter.use(cookieParser());
@@ -59,16 +55,14 @@ authRouter.post("/login", async (req : any, res : any) =>
     try {
         // all functions called there return a string on error
 
-        let account = get_account(req.body.email);
+        const account = get_full_account(req.body.email);
         if (typeof account === 'string') throw account;
+        
+        const err = verify_password(account, req.body.password)
+        if (typeof err === 'string') throw err;
 
-        account = verify_password(account, req.body.password);
-        if (typeof account === 'string') throw account;
-
-        account = get_role(account);
-        if (typeof account === 'string') throw account;
-
-        const refresh_token = jwt.sign({ email: account.email }, JWT_RE_SECRET);
+        
+        const refresh_token = jwt.sign({ email: req.body.email }, JWT_RE_SECRET);
 
         const is_in_db = put_token_in_db(account.id, refresh_token);
         if (typeof is_in_db === 'string') throw is_in_db;
@@ -131,7 +125,6 @@ function delete_db_token(token : string)
     }
     return true; 
 }
-
 
 function set_cookies(res : any, access_token : string, refresh_token : string)
 {
@@ -223,6 +216,18 @@ export function is_connected(req : any, res : any) : null | string
         tk_refresh
     );
     return payload.email;
+}
+
+
+export function get_full_account(email: string) : role.Account | string
+{
+    let account = get_account(email);
+    if (typeof account === 'string') return account;
+
+    account = get_role(account);
+    if (typeof account === 'string') return account;
+
+    return account;
 }
 
 function get_role(account : role.Account) : role.Account | string

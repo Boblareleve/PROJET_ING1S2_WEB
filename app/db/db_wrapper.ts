@@ -1,9 +1,10 @@
+import sqlite3 from 'better-sqlite3'
 
 
 // first result
 // null on error/not found
 // object otherwise
-export function db_get(db, sql, params)
+export function db_get(db : sqlite3.Database, sql : string, params : any[]) : any
 {
     try
     {
@@ -20,7 +21,7 @@ export function db_get(db, sql, params)
 }
 
 // !== true on error
-export function db_run(db, sql, params)
+export function db_run(db : sqlite3.Database, sql : string, params : any[]) : any
 {
     try {
         db.prepare(sql).run(params);
@@ -36,7 +37,7 @@ export function db_run(db, sql, params)
 // all result
 // null on error/not found
 // object otherwise
-export function db_get_all(db, sql, params)
+export function db_get_all(db : sqlite3.Database, sql : string, params : any[]) : any
 {
     try
     {
