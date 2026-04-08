@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/auth/auth';
 
 
 
@@ -24,8 +25,8 @@ async function handleLogOut() {
     if(res.ok){
       
     }
-
-    
+    const store = useAuthStore()
+    store.$reset()
     console.log("deconnecter !");
 
 }
