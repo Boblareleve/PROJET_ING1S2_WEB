@@ -58,13 +58,13 @@ CREATE TABLE Companies
 
 
 
-CREATE TABLE Offers
+/* CREATE TABLE Offers
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     company_id INTEGER NOT NULL,
     
     FOREIGN KEY (company_id) REFERENCES Companies(id)
-);
+); */
 
 CREATE TABLE Report_card
 (
@@ -98,7 +98,6 @@ CREATE TABLE Internship_files
     FOREIGN KEY (tutor_id)      REFERENCES Supervisors(id)
 );
 
-
 CREATE TABLE Documents
 (
     id                  INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -110,7 +109,6 @@ CREATE TABLE Documents
     FOREIGN KEY (type_id)            REFERENCES Document_types(id),
     FOREIGN KEY (internship_file_id) REFERENCES Internship_files(id)
 );
-
 
 CREATE TABLE Document_types
 (

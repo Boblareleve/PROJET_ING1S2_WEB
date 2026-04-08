@@ -34,7 +34,6 @@ async function handleLogin() {
         return ;
     }
 
-
     if(res.ok){
       const user = await res.json()
       auth.user = user

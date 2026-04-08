@@ -297,7 +297,7 @@ function put_token_in_db(account_id : number, refresh_token : string) : true | s
     return true;
 }
 
-// add middelware when connections needed
+// add middleware when connections needed
 export function auth(req : any, res : any, next : Function)
 {
     req.email = is_connected(req, res);
