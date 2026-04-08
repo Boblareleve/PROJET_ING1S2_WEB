@@ -22,6 +22,8 @@ export const useAuthStore = defineStore('auth', {
             this.isLoading = true
             try {
                 const res = await fetch('/api/me', {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json; charset=UTF-8" },
                     credentials: 'include'
                 })
                 console.log(res)

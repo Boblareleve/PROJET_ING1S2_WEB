@@ -5,6 +5,7 @@ import { useAuthStore } from '@/auth/auth';
 
 
 const router = useRouter()
+const store = useAuthStore()
 
 
 async function handleLogOut() {
@@ -26,7 +27,6 @@ async function handleLogOut() {
     if(res.ok){
       
     }
-    const store = useAuthStore()
     store.$reset()
     console.log("deconnecter !");
 
