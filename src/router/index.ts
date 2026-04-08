@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginPage from '@/views/LoginPage.vue'
-import homeTeacher from '@/views/homeTeacher.vue'
-import homeAdmin from '@/views/homeAdmin.vue'
+import LoginPage from '@/views/login_page.vue'
+import homeTeacher from '@/views/home_teacher.vue'
+import log_out from '@/views/log_out.vue'
+import homeAdmin from '@/views/home_admin.vue'
 import { useAuthStore } from '@/auth/auth'
 import { ROLE } from '../../share/role'
 
@@ -37,6 +38,12 @@ const router = createRouter({
       name: 'admin',
       component: homeAdmin,
       meta:{requiresAuth: true, role: ROLE.ADMIN}
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      component: log_out,
+      meta: {requiresAuth: false}
     }
   ],
 })
