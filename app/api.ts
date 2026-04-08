@@ -1,24 +1,21 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
-import { ROLE } from '../share/role.ts'
+import type { Account } from '../share/role.ts'
 
 // download files ?
 import path from 'path'
 
 import { db_get, db_run, db_get_all } from './db/db_wrapper.ts'
-import { auth } from './auth.ts'
-export const apiRouter = express.Router();
+import { auth, get_full_account } from './auth.ts'
+
+export const apiRouter: express.Router = express.Router();
 
 
 apiRouter.use(express.json());
 apiRouter.use(cookieParser());
 
 import sqlite3 from 'better-sqlite3'
-const db = new sqlite3(
-    // path.resolve(__dirname, "./var/db.db"),
-    "./var/db.db",
-    sqlite3.OPEN_READWRITE
-); // no create
+const db: sqlite3.Database  = new sqlite3("./var/db.db"); // no create
 if (!db) console.error("Can't open database ./var/db.db");
 db.pragma("foreign_keys = ON");
 
@@ -27,35 +24,27 @@ db.pragma("foreign_keys = ON");
 // dossier de stage existe
 function get_folder(folder : number)
 {
-    return db_get(db,
-        `
-            SELECT * FROM Internship_files WHERE id = ?;
-        `,
-        [folder]
-    );
+    return db_get(db, `SELECT * FROM Internship_files WHERE id = ?;`, [folder]);
 }
 
 
 
-
-
-
-
-
-function get_(email : string)
+/* function get_(email : string)
 {
     const res: Account = {
         id
     };
     get_account();
     get_role();
-}
+} */
 
 
 apiRouter.get('/me', auth, (req : any, res : any) =>
 {
-    const account: Account = { id: 0, email: "", role: 0, info: null };
-    res.send(account);
+    const full_account = get_full_account(req.email);
+    if (typeof full_account == 'string')
+        res.status(501).send();
+    res.send(full_account);
 });
 
 apiRouter.get('/download/:filename', auth, (req : any, res : any) =>
@@ -73,8 +62,8 @@ apiRouter.get('/download/:filename', auth, (req : any, res : any) =>
 
 
     
-    const [ role, account ] = get_role();
-    if (typeof role === 'string')
+    const account = get_full_account(req.email);
+    if (typeof account === 'string')
     {
         return ;
     }

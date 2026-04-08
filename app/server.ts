@@ -1,10 +1,7 @@
-
 // easy get/post/... request
 import express from 'express'
 
-
-
-let app = express();
+let app : express.Express = express();
 const port = 8000;
 
 

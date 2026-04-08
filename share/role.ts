@@ -1,8 +1,8 @@
 
 
-export interface Admin {};
+export interface Admin      {};
 export interface Supervisor {};
-export interface Student {};
+export interface Student    {};
 
 export interface Person {
     first_name : string,
