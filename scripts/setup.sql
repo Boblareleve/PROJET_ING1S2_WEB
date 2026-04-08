@@ -114,7 +114,10 @@ CREATE TABLE Document_types
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     
-    info TEXT
+    info TEXT,
+    student_accessible BOOLEAN,
+    tutor_accessible BOOLEAN,
+    company_accessible BOOLEAN
 );
 
 CREATE TABLE Domains
