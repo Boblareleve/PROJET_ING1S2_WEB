@@ -10,7 +10,8 @@ const router = useRouter()
 async function handleLogOut() {
 
   const res = await fetch("/auth/logout", {
-        method: "delete",
+        method: "DELETE",
+        headers: { "Content-Type": "application/json; charset=UTF-8" },
         credentials: "include"
     });
 
