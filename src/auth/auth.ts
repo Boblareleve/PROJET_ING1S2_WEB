@@ -1,5 +1,7 @@
-import type {User} from '@/types/user'
+import type { Account } from '../../share/role.ts'
 import {defineStore} from 'pinia'
+
+type User = Account
 
 export const useAuthStore = defineStore('auth', {
 
@@ -12,14 +14,17 @@ export const useAuthStore = defineStore('auth', {
     //retourn un boolean en fonction du role
     getters: {
        isConnected: (state) => state.user !== null,
-       hasRole: (state) => (role:string) => state.user?.role === role
+       hasRole: (state) => (role:number) => state.user?.role === role
     },
 
     actions: {
         async fetchCurrentUser(){
             this.isLoading = true
             try {
-                const res = await fetch('/api/auth/me')
+                const res = await fetch('/api/me', {
+                    credentials: 'include'
+                })
+                console.log(res)
                 if (!res.ok) throw new Error('Failed to fetch user')
                 this.user = await res.json()
             } catch (error) {
@@ -28,11 +33,6 @@ export const useAuthStore = defineStore('auth', {
             } finally {
                 this.isLoading = false
             }
-        },
-        fakeLogin(role: 'admin' | 'teacher' | 'student') {
-            if (role === 'teacher') this.user = { nom: 'Test', role: 'teacher'}
-            if (role === 'student') this.user = { nom: 'Test', role: 'student', id:2}
-            if (role === 'admin')   this.user = { nom: 'Test', role: 'admin'}
-        } 
+        }
     }
 })

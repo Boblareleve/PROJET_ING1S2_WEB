@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/auth/auth'
+import { useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { ROLE } from '../../share/role'
 
+const router = useRouter()
+const auth = useAuthStore()
 const showPassword = ref(false)
 
 const email = ref('')
@@ -29,11 +33,21 @@ async function handleLogin() {
         console.error(`HTTP ${res.status}: ${text}`);
         return ;
     }
-    const auth = useAuthStore()
+
 
     if(res.ok){
       const user = await res.json()
       auth.user = user
+
+      // Redirect based on role
+      if (user.role === ROLE.ADMIN) {
+        router.push('/admin')
+      } else if (user.role === ROLE.SUPERVISOR) {
+        router.push('/supervisor')
+      } else {
+        // For other roles, redirect to a default or handle accordingly
+        router.push('/')
+      }
     }
 
     
