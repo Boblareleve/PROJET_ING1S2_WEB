@@ -29,6 +29,7 @@ async function handleLogin() {
         console.error(`HTTP ${res.status}: ${text}`);
         return ;
     }
+    
     const auth = useAuthStore()
 
     if(res.ok){

@@ -1,7 +1,10 @@
 
 
-/account/prof
+/account/supervisor
 /account/students
+/account/company
+
+
 /stages/
 
 
@@ -14,6 +17,8 @@ body: {
 }
 -> cookies: "token_access":  "..."
             "token_refresh": "..."
+
+
 
 
 DELETE /logout

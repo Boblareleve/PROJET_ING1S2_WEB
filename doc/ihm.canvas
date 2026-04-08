@@ -10,9 +10,9 @@
 		{"id":"f978b47266a255e6","type":"text","text":"token:\n+ is_admin","x":-2830,"y":536,"width":250,"height":110},
 		{"id":"4276163f2d91705c","type":"text","text":"admin","x":-2830,"y":399,"width":250,"height":60},
 		{"id":"9406b15f32beca0b","type":"text","text":"personne\n+ nom\n+ prénom","x":-2830,"y":784,"width":220,"height":153},
-		{"id":"72dd40628d0a6099","type":"text","text":"bulletin\n+ chemin\n+ année\n+ semestre ?\n+ ...","x":-3200,"y":1040,"width":250,"height":230},
 		{"id":"c66e0ec83a7beaaa","type":"text","text":"type document (semi-static):\n* genre VARCHAR","x":-3990,"y":1140,"width":300,"height":160},
-		{"id":"95d0c05c29fbe7e3","type":"text","text":"document\n+ chemin\n+ privé (accessible seulement à par l'étudiant)","x":-3940,"y":763,"width":310,"height":217}
+		{"id":"95d0c05c29fbe7e3","type":"text","text":"document\n+ chemin\n+ privé (accessible seulement à par l'étudiant)","x":-3940,"y":763,"width":310,"height":217},
+		{"id":"72dd40628d0a6099","type":"text","text":"bulletin\n+ chemin\n+ année\n+ semestre ?\n+ ...","x":-3180,"y":1045,"width":250,"height":230}
 	],
 	"edges":[
 		{"id":"44b1d73074f61b16","fromNode":"8adaccbfe9d04be0","fromSide":"bottom","toNode":"bd34085defe6a2e1","toSide":"top","toEnd":"none"},
