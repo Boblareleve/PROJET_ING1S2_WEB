@@ -41,6 +41,7 @@ const access_timeout: number  =          10 * 60 * 1000; // 10min
 authRouter.delete("/logout", async (req : any, res : any) =>
 {
     const cookie_refresh_token = req.cookies.refresh_token;
+    
     clear_cookies(res);
     
     if (null === delete_db_token(cookie_refresh_token))
