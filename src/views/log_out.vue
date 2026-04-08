@@ -5,12 +5,14 @@ import { useAuthStore } from '@/auth/auth';
 
 
 const router = useRouter()
+const store = useAuthStore()
 
 
 async function handleLogOut() {
 
   const res = await fetch("/auth/logout", {
-        method: "delete",
+        method: "DELETE",
+        headers: { "Content-Type": "application/json; charset=UTF-8" },
         credentials: "include"
     });
 
@@ -25,7 +27,6 @@ async function handleLogOut() {
     if(res.ok){
       
     }
-    const store = useAuthStore()
     store.$reset()
     console.log("deconnecter !");
 
