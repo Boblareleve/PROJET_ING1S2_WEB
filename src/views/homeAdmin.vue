@@ -10,8 +10,8 @@ const auth = useAuthStore()
   <!-- ton HTML ici -->
   <!-- c'est réactif, tu peux utiliser directement les variables du script -->
   <div>
-    <p v-if="auth.user?.info && 'first_name' in auth.user.info">
-      Bonjour {{ auth.user.info.first_name }} {{ auth.user.info.last_name }}
+    <p v-if="auth.user?.email">
+      Bonjour {{ auth.user.email}}
     </p>
     <p v-else>Chargement...</p>
   </div>

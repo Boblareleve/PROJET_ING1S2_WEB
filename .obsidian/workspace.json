@@ -15,9 +15,9 @@
               "state": {
                 "file": "doc/ihm.canvas",
                 "viewState": {
-                  "x": -2795.973614687001,
-                  "y": 3142.99509006686,
-                  "zoom": -0.3605014782803274
+                  "x": -3309.1311952590513,
+                  "y": 912.2908618181265,
+                  "zoom": -0.3983168316237088
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -185,12 +185,12 @@
   },
   "active": "f244edb267e65a0c",
   "lastOpenFiles": [
+    "doc/Projet_DevWeb_V1.pdf",
+    "doc/ihm.canvas",
     "src/views/LoginPage.vue",
     "public/LoginPage.vue",
     "README.md",
     "doc/api.md",
-    "doc/Projet_DevWeb_V1.pdf",
-    "doc/ihm.canvas",
     "doc/cahier des charges.md",
     "src/types/user.ts",
     "src/types"
