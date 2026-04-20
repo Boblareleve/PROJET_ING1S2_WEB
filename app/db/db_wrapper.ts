@@ -21,7 +21,7 @@ export function db_get(db : sqlite3.Database, sql : string, params : any[]) : an
 }
 
 // !== true on error
-export function db_run(db : sqlite3.Database, sql : string, params : any[]) : any
+export function db_run(db : sqlite3.Database, sql : string, params : any[]) : boolean | null
 {
     try {
         db.prepare(sql).run(params);

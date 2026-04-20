@@ -81,6 +81,9 @@ CREATE TABLE Internship
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     company_id  INTEGER NOT NULL,
     domain_id   INTEGER,
+
+    title       TEXT NOT NULL UNIQUE,
+    abstract    TEXT,
     
     FOREIGN KEY (company_id) REFERENCES Companies(id)
     FOREIGN KEY (domain_id)  REFERENCES Domains(id)
@@ -125,6 +128,7 @@ CREATE TABLE Domains
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    title TEXT NOT NULL
+    title       TEXT NOT NULL,
+    abstract    TEXT
 );
 
