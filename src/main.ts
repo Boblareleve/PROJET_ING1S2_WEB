@@ -1,20 +1,15 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate"
+
 import App from './App.vue'
 import router from './router'
-import { createPinia } from 'pinia'
-import { useAuthStore } from '@/auth/auth'
 
 const app = createApp(App)
-app.use(createPinia())
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+
+app.use(pinia)
 app.use(router)
 
-
-
-async function init(){
-    const auth = useAuthStore()
-    await auth.fetchCurrentUser()
-    app.mount('#app')
-}
-
-
-init()
+app.mount('#app')
