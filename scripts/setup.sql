@@ -51,6 +51,7 @@ CREATE TABLE Companies
 (
     id INTEGER PRIMARY KEY,
     
+    name_company TEXT NOT NULL UNIQUE,
     url_site TEXT,
 
     FOREIGN KEY (id) REFERENCES Accounts(id)

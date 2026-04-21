@@ -6,10 +6,23 @@ case $1 in
         echo 'SETUP'
         rm var/db.db
         sqlite3 var/db.db < scripts/setup.sql
+        chmod 777 var/db.db
         ;;
-    close_con)
+    erase_tokens)
         echo 'DELETE ALL CON TOKENS'
         sqlite3 -line var/db.db 'DELETE FROM Tokens;'
+        ;;
+    tokens)
+        # sqlite3 -line var/db.db 'SELECT * FROM Tokens;'
+                # t.expiration,
+        sqlite3 -line var/db.db "SELECT 
+                t.id,
+                t.token,
+                t.expiration,
+                a.id   AS account_id,
+                a.email AS account_email
+            FROM Tokens t
+            JOIN Accounts a ON a.id = t.account_id;"
         ;;
     test_accounts)
         echo 'reset accounts and create testing account with 1234 as password'
@@ -36,7 +49,8 @@ case $1 in
             END AS kind,
             p.first_name,
             p.last_name,
-            c.url_site
+            c.url_site,
+            c.name_company
         FROM Accounts a
         LEFT JOIN Admins       ad ON ad.id = a.id
         LEFT JOIN Companies    c  ON c.id  = a.id

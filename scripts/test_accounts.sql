@@ -11,8 +11,11 @@ VALUES
     ("quentin82.donier@gmail.com", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4");
 
 
-INSERT INTO Companies (id)
-    SELECT id FROM Accounts WHERE "c@gmail.com" = email;
+INSERT INTO Companies (id, name_company)
+    SELECT id, "a_company" 
+    FROM Accounts 
+    WHERE "c@gmail.com" = email;
+
 INSERT INTO Admins (id)
     SELECT id FROM Accounts WHERE "a@gmail.com" = email;
 
