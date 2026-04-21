@@ -106,6 +106,10 @@ CREATE TABLE Documents
     file_path   TEXT,
     type_id     INTEGER NOT NULL,
     
+    student_accessible BOOLEAN,
+    tutor_accessible BOOLEAN,
+    company_accessible BOOLEAN
+    
     FOREIGN KEY (type_id)            REFERENCES Document_types(id),
     FOREIGN KEY (internship_file_id) REFERENCES Internship_files(id)
 );
@@ -114,7 +118,7 @@ CREATE TABLE Document_types
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     
-    info TEXT
+    info TEXT,
 );
 
 CREATE TABLE Domains

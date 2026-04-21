@@ -47,6 +47,9 @@ apiRouter.get('/me', auth, (req : any, res : any) =>
     res.send(full_account);
 });
 
+
+// apiRouter.post('/upload/???')
+
 apiRouter.get('/download/:filename', auth, (req : any, res : any) =>
 {
     // sanitize to prevent path traversal attacks (../../etc/passwd)

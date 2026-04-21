@@ -24,7 +24,7 @@ authRouter.use(express.json());
 authRouter.use(cookieParser());
 
 
-const JWT_AC_SECRET: string = process.env.JWT_SECRET || 'your---secdret-key';
+const JWT_AC_SECRET: string = process.env.JWT_SECRET    || 'your---secdret-key';
 const JWT_RE_SECRET: string = process.env.JWT_RE_SECRET || 'y--secdret-key';
 
 
@@ -40,9 +40,11 @@ const access_timeout: number  =          10 * 60 * 1000; // 10min
 
 authRouter.delete("/logout", async (req : any, res : any) =>
 {
+    const cookie_refresh_token = req.cookies.token_refresh;
+
     clear_cookies(res);
     
-    if (null === delete_db_token(req.cookies.refresh_token))
+    if (null === delete_db_token(cookie_refresh_token))
         return res.status(500).send("can't erase refresh token from database");
     
     res.end();
@@ -110,17 +112,21 @@ function delete_expired_tokens()
 
 function delete_db_token(token : string) 
 {
+    // console.log("try delete db_token: " + token);
     try {
         const payload = jwt.verify(token, JWT_RE_SECRET);
 
         if (null === db_run(db_auth,
             `DELETE FROM Tokens WHERE token = ?;`,
-            [payload /* .TODO */]
-        ))
+            [token]
+        )) {
+            console.log("\tfailed (not found)");
             return null;
+        }
     }
     catch (err)
     {
+        console.log("\tfailed ("+err+")");
         return null;
     }
     return true; 
