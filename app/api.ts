@@ -184,20 +184,24 @@ apiRouter.post('/query/internship', auth, (req: any, res: any) =>
 
     if (req.body.domain !== null)
     {
-        query += `domain_id = ? AND `;
-        const d = db_get(db, `SELECT id FORM Domains WHERE title = ?`, [req.body.domain]);
+        console.log("domain: " + req.body.domain);
+        const d = db_get(db, `SELECT id FROM Domains WHERE title = ?`, [req.body.domain]);
         if (d === null)
-            return res.status(400).send("domain not found");
-        params.push(d);
+            return res.status(400).send("domain not found (" + req.body.domain + ")");
+        console.log("domain_id: " + d.id);
+        query += `domain_id = ? AND `;
+        params.push(d.id);
     }
     if (req.body.date !== null)
     {
+        console.log("date: " + JSON.stringify(req.body.date))
         query += `min_begin < ? AND ? < max_begin AND `;
         params.push(req.body.date.max);
         params.push(req.body.date.min);
     }
     if (req.body.duration !== null)
     {
+        console.log("duration: " + req.body.duration);
         query += `ABS(duration - ?) <= 1 AND `;
         params.push(req.body.duration);
     }
@@ -214,12 +218,16 @@ apiRouter.post('/query/internship', auth, (req: any, res: any) =>
         
         parsed.push({
             domain:  db_get(db, `SELECT title FROM Domains WHERE id = ?`,  [element.domain_id]),
-            company: db_get(db, `SELECT name FROM Companies WHERE id = ?`, [element.company_id])
-
+            company: db_get(db, `SELECT name FROM Companies WHERE id = ?`, [element.company_id]),
+            title: element.title,
+            abstract: element.abstract,
+            min_begin: element.min_begin,
+            max_begin: element.max_begin,
+            duration: element.duration
         })
     }
     
-    res.send();
+    res.send(parsed);
 });
 
 
