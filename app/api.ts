@@ -45,7 +45,7 @@ apiRouter.post('/company/internship', auth, (req: any, res: any) =>
     if (full_account.role !== ROLE.COMPANY)
         return res.status(401).send("only company can create new stage");
 
-    if (db_get(db, `SELECT FROM Internship
+    if (db_get(db, `SELECT 1 FROM Internship
                     WHERE title = ?`,
             [req.body.title]) !== null)
     {
@@ -53,7 +53,7 @@ apiRouter.post('/company/internship', auth, (req: any, res: any) =>
         const base_title = req.body.title;
         let count = 1;
         req.body.title = base_title + " - " + count;
-        while (db_get(db, `SELECT FROM Internship
+        while (db_get(db, `SELECT 1 FROM Internship
                            WHERE title = ?`,
             [req.body.title]) !== null)
         {
@@ -68,7 +68,7 @@ apiRouter.post('/company/internship', auth, (req: any, res: any) =>
             VALUES (?, ?, ?);
         `,
         [full_account.id, req.body.title, req.body.abstract]
-    ) !== null)
+    ) === null)
         return res.status(401).send("fail to add row to db");
     
     res.send({ title: req.body.title });
@@ -124,7 +124,10 @@ apiRouter.post('/admin/domain', auth, (req: any, res: any) =>
 
 /* body: {
     title: ""
-    abstract: ""
+    new: {
+        title: ""
+        abstract: ""
+    }
 } */
 apiRouter.put('/admin/domain', auth, (req: any, res: any) =>
 {
@@ -142,7 +145,7 @@ apiRouter.put('/admin/domain', auth, (req: any, res: any) =>
             WHERE
                 title = ?;
             `,
-            [req.body.title, req.body.abstract, req.body.title]
+            [req.body.new.title, req.body.new.abstract, req.body.title]
         ) !== null
     ) {
         return res.status(401).send("can't update domain: '" + req.body.title + "'");

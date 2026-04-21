@@ -6,27 +6,41 @@ case $1 in
             -X POST http://localhost:5173/auth/login \
             -H 'Content-Type: application/json' \
             -d "{\"email\": \"$2@gmail.com\", \"password\": \"1234\"}" \
-            -c ./scripts/curl/tmp/cookies.txt
+            -c ./scripts/curl/cookies.txt
         ;;
     logout | out)
         curl -i \
             -X DELETE http://localhost:5173/auth/logout \
             -H "Content-Type: application/json; charset=UTF-8" \
-            -b ./scripts/curl/tmp/cookies.txt
+            -b ./scripts/curl/cookies.txt
 
         ;;
-    new_internship | n)
+    new_internship | ni)
         curl -i \
             -X POST http://localhost:5173/api/company/internship \
             -H "Content-Type: application/json; charset=UTF-8" \
-            -b ./scripts/curl/tmp/cookies.txt \
+            -b ./scripts/curl/cookies.txt \
             -d "{ \"title\": \"$2\", \"abstract\": \"$3\" }"
         ;;
-    del_internship | d)
+    del_internship | di)
         curl -i \
             -X DELETE http://localhost:5173/api/company/internship \
             -H "Content-Type: application/json; charset=UTF-8" \
-            -b ./scripts/curl/tmp/cookies.txt \
+            -b ./scripts/curl/cookies.txt \
+            -d "{ title: \"$2\" }"
+        ;;
+    new_domain | nd)
+        curl -i \
+            -X POST http://localhost:5173/api/admin/domain \
+            -H "Content-Type: application/json; charset=UTF-8" \
+            -b ./scripts/curl/cookies.txt \
+            -d "{ \"title\": \"$2\", \"abstract\": \"$3\" }"
+        ;;
+    update_domain | ud)
+        curl -i \
+            -X PUT http://localhost:5173/api/admin/domain \
+            -H "Content-Type: application/json; charset=UTF-8" \
+            -b ./scripts/curl/cookies.txt \
             -d "{ title: \"$2\" }"
         ;;
 

@@ -46,6 +46,12 @@ case $1 in
         ORDER BY kind, a.id;
         "
         ;;
+    stages)
+        sqlite3 -line var/db.db "SELECT * FROM Internship;"
+        ;;
+    reset_stages)
+        sqlite3 -line var/db.db "DELETE FROM Internship;"
+        ;;
     *)
         echo unkown command
         ;;
