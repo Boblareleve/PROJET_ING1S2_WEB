@@ -1,6 +1,8 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import type { Account } from '../share/role.ts'
+import { ROLE } from '../share/role.ts'
+
 
 // download files ?
 import path from 'path'
@@ -28,29 +30,208 @@ function get_folder(folder : number)
 }
 
 
-
-/* function get_(email : string)
+function m_full_account(req : any, res : any, next : Function)
 {
-    const res: Account = {
-        id
-    };
-    get_account();
-    get_role();
+    req.full_account = get_full_account(req.email);
+    if (typeof req.full_account === 'string')
+        return res.status(401).send("failed too find account informations");
+    
+    next();
+}
+
+
+/* body: {
+    title: "abc",
+    abstract: "",
+    domain: ?,
 } */
-
-
-apiRouter.get('/me', auth, (req : any, res : any) =>
+// -> { title: "abc - [0-9]*" } title can be annoted to unsure it's uniqueness
+apiRouter.post('/company/internship', auth, m_full_account, (req: any, res: any) =>
 {
-    const full_account = get_full_account(req.email);
-    if (typeof full_account == 'string')
-        res.status(501).send();
-    res.send(full_account);
+    // const full_account = get_full_account(req.email);
+    // if (typeof full_account == 'string')
+        // return res.status(401).send("failed too find company account informations");
+    if (req.full_account.role !== ROLE.COMPANY)
+        return res.status(401).send("only company can create new stage");
+
+    if (db_get(db, `SELECT 1 FROM Internship
+                    WHERE title = ?`,
+            [req.body.title]) !== null)
+    {
+        console.log("name conflict 1");
+        const base_title = req.body.title;
+        let count = 1;
+        req.body.title = base_title + " - " + count;
+        while (db_get(db, `SELECT 1 FROM Internship
+                           WHERE title = ?`,
+            [req.body.title]) !== null)
+        {
+            count++;
+            console.log("name conflict " + count);
+            req.body.title = base_title + " - " + count;
+        }
+    }
+
+    if (!db_run(db, `
+        INSERT INTO Internship (company_id, title, abstract)
+            VALUES (?, ?, ?);
+        `,
+        [req.full_account.id, req.body.title, req.body.abstract]
+    ))
+        return res.status(401).send("fail to add row to db");
+    
+    res.send({ title: req.body.title });
+});
+
+/* body: {
+    title: "" // need to be exact
+} */
+apiRouter.delete('/company/internship', auth, m_full_account, (req: any, res: any) =>
+{
+    // const full_account = get_full_account(req.email);
+    // if (typeof full_account == 'string')
+    //     return res.status(401).send("failed too find company account informations");
+    if (req.full_account.role !== ROLE.COMPANY)
+        return res.status(401).send("only company can cancel stages");
+
+    if (!db_run(db, `
+        DELETE FROM Internship
+        WHERE
+            company_id = ? AND title = ?;
+        `,
+        [req.full_account.id, req.body.title]
+    ))
+        return res.status(401).send("fail to find row to delete db");
+    
+    res.send();
+});
+
+/* body: {
+    title: ""
+    abstract: ""
+} */
+apiRouter.post('/admin/domain', auth, m_full_account, (req: any, res: any) =>
+{
+    // const full_account = get_full_account(req.email);
+    // if (typeof full_account == 'string')
+    //     return res.status(401).send("failed too find admin account informations");
+    if (req.full_account.role !== ROLE.ADMIN)
+        return res.status(401).send("only admin can add domain");
+
+    if (!db_run(db, `
+            INSERT INTO Domains (title, abstract)
+            VALUES (?, ?);
+            `,
+            [req.body.title, req.body.abstract]
+        )
+    ) {
+        return res.status(401).send("can't add domain: '" + req.body.title + "'");
+    }
+
+    res.send();
+});
+
+/* body: {
+    title: ""
+    new: {
+        title: ""
+        abstract: ""
+    }
+} */
+apiRouter.put('/admin/domain', auth, m_full_account, (req: any, res: any) =>
+{
+    // const full_account = get_full_account(req.email);
+    // if (typeof full_account == 'string')
+    //     return res.status(401).send("failed too find admin account informations");
+    if (req.full_account.role !== ROLE.ADMIN)
+        return res.status(401).send("only admin can add domain");
+
+    if (!db_run(db, `
+            UPDATE Domains 
+            SET
+                title = ?,
+                abstract = ?
+            WHERE
+                title = ?;
+            `,
+            [req.body.new.title, req.body.new.abstract, req.body.title]
+        )
+    ) {
+        return res.status(401).send("can't update domain: '" + req.body.title + "'");
+    }
+
+    res.send();
+});
+
+/* body: {
+    domain: "", // title exact
+    date: { // date of begining
+        min: unix-time, 
+        max: unix-time
+    },
+    duration: unix-time,
+    fuzzy: "" // title / abstract 
+} */
+const duration_margin = 1;
+apiRouter.post('/query/internship', auth, (req: any, res: any) =>
+{
+    let query = `
+        SELECT * FROM Internship
+        WHERE
+    `;
+    let params = [];
+
+    if (req.body.domain !== null)
+    {
+        query += `domain_id = ? AND `;
+        const d = db_get(db, `SELECT id FORM Domains WHERE title = ?`, [req.body.domain]);
+        if (d === null)
+            return res.status(400).send("domain not found");
+        params.push(d);
+    }
+    if (req.body.date !== null)
+    {
+        query += `min_begin < ? AND ? < max_begin AND `;
+        params.push(req.body.date.max);
+        params.push(req.body.date.min);
+    }
+    if (req.body.duration !== null)
+    {
+        query += `ABS(duration - ?) <= 1 AND `;
+        params.push(req.body.duration);
+    }
+    query += `TRUE `;
+
+    let found = db_get_all(db, query, params);
+    if (found === null)
+        found = [];
+
+    let parsed = [];
+
+    for (let index = 0; index < found.length; index++) {
+        const element = found[index];
+        const domain = db_get(db, `SELECT title FROM Domains WHERE id = ?`, [element.domain_id])
+
+        parsed.push({
+            domain,
+            ...........
+        })
+    }
+    
+    res.send();
 });
 
 
-// apiRouter.post('/upload/???')
+apiRouter.get('/me', auth, m_full_account, (req: any, res: any) =>
+{
+    // const full_account = get_full_account(req.email);
+    // if (typeof full_account == 'string')
+    //     res.status(501).send();
+    res.send(req.full_account);
+});
 
-apiRouter.get('/download/:filename', auth, (req : any, res : any) =>
+// apiRouter.post('/upload/???')
+apiRouter.get('/download/:filename', auth, (req: any, res: any) =>
 {
     // sanitize to prevent path traversal attacks (../../etc/passwd)
     const filename = path.basename(req.body.filename);
@@ -72,10 +253,10 @@ apiRouter.get('/download/:filename', auth, (req : any, res : any) =>
     }
     
     const file = path.join(__dirname, 'var/storage', folder, filename);
-    res.download(file, (err : any) =>
+    res.download(file, (err: any) =>
     {
         if (err) res.status(404).json({ error: 'File ' + filename + ' not found' });
-    })
+    });
 })
 
 

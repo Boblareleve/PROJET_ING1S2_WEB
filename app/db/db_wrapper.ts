@@ -21,7 +21,7 @@ export function db_get(db : sqlite3.Database, sql : string, params : any[]) : an
 }
 
 // !== true on error
-export function db_run(db : sqlite3.Database, sql : string, params : any[]) : any
+export function db_run(db : sqlite3.Database, sql : string, params : any[]) : boolean
 {
     try {
         db.prepare(sql).run(params);
@@ -29,7 +29,7 @@ export function db_run(db : sqlite3.Database, sql : string, params : any[]) : an
     }
     catch (err) {
         console.log("run ("+sql+") failed: " + err);
-        return null;
+        return false;
     }
 }
 
@@ -43,6 +43,8 @@ export function db_get_all(db : sqlite3.Database, sql : string, params : any[]) 
     {
         const res = db.prepare(sql).all(params);
         if (res === undefined)
+            return null;
+        if (res.length === 0)
             return null;
         return res;
     }
