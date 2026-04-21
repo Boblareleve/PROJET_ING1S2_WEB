@@ -172,6 +172,7 @@ apiRouter.put('/admin/domain', auth, m_full_account, (req: any, res: any) =>
     duration: unix-time,
     fuzzy: "" // title / abstract 
 } */
+// --> [{ domain: "title", company: "name",  }]
 const duration_margin = 1;
 apiRouter.post('/query/internship', auth, (req: any, res: any) =>
 {
@@ -210,11 +211,11 @@ apiRouter.post('/query/internship', auth, (req: any, res: any) =>
 
     for (let index = 0; index < found.length; index++) {
         const element = found[index];
-        const domain = db_get(db, `SELECT title FROM Domains WHERE id = ?`, [element.domain_id])
-
+        
         parsed.push({
-            domain,
-            ...........
+            domain:  db_get(db, `SELECT title FROM Domains WHERE id = ?`,  [element.domain_id]),
+            company: db_get(db, `SELECT name FROM Companies WHERE id = ?`, [element.company_id])
+
         })
     }
     

@@ -20,8 +20,12 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.11.0",
     "async-mutex": "^0.5.0",
+    "better-sqlite3": "^12.9.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "pinia": "^3.0.4",
     "vue": "^3.5.29",
     "vue-router": "^5.0.3"
