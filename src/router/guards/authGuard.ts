@@ -1,19 +1,17 @@
 import { useUserStore } from '@/stores/user.stores'
+import { getHomeByRole } from '@/utils/getHomeByRole'
 import type { RouteLocationNormalized } from 'vue-router'
 
 export function authGuard(to: RouteLocationNormalized) {
-  const user = useUserStore()
+  const store = useUserStore()
+  
 
-  // Si pas connecté → redirection
-  if (!user.isLoggedIn && to.path !== "/auth/login") {
-    return "/auth/login"
-  }
+  if (to.path === "/auth/login") {
+  if (store.isConnected) return getHomeByRole(store.user!.role)
+  return true
+}
+  if (!store.isConnected) return "/auth/login"
+  if (to.meta.role !== undefined && !store.hasRole(to.meta.role as number)) return "/auth/login"
 
-  // Si connecté mais pas admin → redirection
-  if (to.meta.role === "admin" && user.role !== "admin") {
-    return "/auth/login"
-  }
-
-  // Sinon → OK
   return true
 }

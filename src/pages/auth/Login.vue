@@ -2,6 +2,9 @@
 import { useUserStore } from '@/stores/user.stores';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { ROLE } from '../../../share/role';
+
+
     const email = ref("")
     const password = ref("")
     const errorMessage = ref("")
@@ -13,30 +16,24 @@ import { useRouter } from 'vue-router';
     async function handleLogin() {
         errorMessage.value = ""
         try {
+          
             await store.login(email.value, password.value)
-
+              console.log("après login, user:", store.user)  // ← ici
+              console.log("role:", store.user?.role)          // ← et ici
             // Redirection selon le rôle
-            switch (store.role) {
-            case "admin":
-                router.push("/admin/dashboard")
-                break
-            case "etudiant":
-                router.push("/etudiant")
-                break
-            case "entreprise":
-                router.push("/entreprise")
-                break
-            case "jury":
-                router.push("/jury")
-                break
-            case "tuteur":
-                router.push("/tuteur")
-                break
-            default:
-                router.push("/")
-            }
+            switch (store.user?.role) {
+              case ROLE.ADMIN:
+                  console.log("redirect admin");
+                  router.push("/admin/dashboard"); 
+                  break
+              case ROLE.STUDENT:    router.push("/etudiant"); break
+              case ROLE.COMPANY:    router.push("/entreprise"); break
+              case ROLE.SUPERVISOR: router.push("/jury"); break
+              default:              router.push("/")
+            }      
 
         } catch (err: any) {
+          
             errorMessage.value = err.message || "Identifiants incorrects"
         }
     }

@@ -1,34 +1,42 @@
+import type { Account } from '../../share/role.ts'
 import { defineStore } from "pinia";
 
-export const useUserStore = defineStore('user',{
-    persist: true, 
+type User = Account
 
-    state:()=>({
-        isLoggedIn: false,
-        role: null as string | null,
-        user: null as { id: number; name: string } | null,
-    }),
-
-    actions:{
-        async login(email: string, password: string){
-            const result = await fetch('/api/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, password })
-            }).then(res => res.json());
-
-            if(result){
-                this.isLoggedIn = true,
-                this.role = result.role,
-                this.user = result.user
-            }
-        },
-
-        logout(){
-            this.isLoggedIn = false,
-            this.role = null,
-            this.user = null
-        }
+export const useUserStore = defineStore('auth', {
+  persist: true,
+  state: () => ({
+    user: null as User | null,
+    isLoading: false as boolean
+  }),
+  getters: {
+    isConnected: (state) => state.user !== null,
+    hasRole: (state) => (role: number) => state.user?.role === role
+  },
+  actions: {
+    async login(email: string, password: string) {
+      this.isLoading = true
+      try {
+        const res = await fetch('/auth/login', {   // ← /api/login, pas /api/me
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: 'include',
+          body: JSON.stringify({ email, password })  // ← envoie les credentials
+        })
+        if (!res.ok) throw new Error(await res.text())
+        this.user = await res.json()
+      } catch (error: any) {
+        this.user = null
+        throw error   // ← re-throw pour que le composant puisse catch
+      } finally {
+        this.isLoading = false
+      }
+    },
+    logout() {
+      fetch('/auth/logout', { method: 'DELETE' }).then(() => {
+        this.user = null
+        this.isLoading = false
+      })
     }
-
+  }
 })
