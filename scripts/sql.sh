@@ -52,6 +52,12 @@ case $1 in
     reset_stages)
         sqlite3 -line var/db.db "DELETE FROM Internship;"
         ;;
+    domain)
+        sqlite3 -line var/db.db "SELECT * FROM Domains;"
+        ;;
+    reset_domain)
+        sqlite3 -line var/db.db "DELETE FROM Domains;"
+        ;;
     *)
         echo unkown command
         ;;

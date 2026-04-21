@@ -41,7 +41,7 @@ case $1 in
             -X PUT http://localhost:5173/api/admin/domain \
             -H "Content-Type: application/json; charset=UTF-8" \
             -b ./scripts/curl/cookies.txt \
-            -d "{ title: \"$2\" }"
+            -d "{ \"title\": \"$2\", \"new\": { \"title\": \"$3\", \"abstract\": \"$4\" } }"
         ;;
 
 # /* body: {

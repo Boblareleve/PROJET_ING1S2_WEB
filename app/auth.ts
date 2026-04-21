@@ -100,13 +100,13 @@ authRouter.post("/login", async (req : any, res : any) =>
 
 function delete_all_tokens()
 {
-    if (null === db_run(db_auth, `TRUNCATE TABLE RTokens;`, []))
+    if (!db_run(db_auth, `TRUNCATE TABLE RTokens;`, []))
         console.error("Failed to truncate RTokens");
 }
 
 function delete_expired_tokens() 
 {
-    if (null === db_run(db_auth,
+    if (!db_run(db_auth,
         `DELETE FROM RTokens
             WHERE expiration >= ?;`,
             [Date.now()]
@@ -120,7 +120,7 @@ function delete_db_token(token : string)
     try {
         const payload = jwt.verify(token, JWT_RE_SECRET);
 
-        if (null === db_run(db_auth,
+        if (!db_run(db_auth,
             `DELETE FROM Tokens WHERE token = ?;`,
             [token]
         )) {
@@ -293,7 +293,7 @@ function verify_password(account : role.Account, password : string) : role.Accou
 function put_token_in_db(account_id : number, refresh_token : string) : true | string
 {
     const expire_time : number = Date.now() + refresh_timeout;
-    if (db_run(db_auth,
+    if (!db_run(db_auth,
         `
             INSERT INTO Tokens (account_id, token, expiration)
                 VALUES(?, ?, ?)
@@ -301,7 +301,7 @@ function put_token_in_db(account_id : number, refresh_token : string) : true | s
                 DO UPDATE SET expiration = ?;
         `,
         [account_id, refresh_token, expire_time, expire_time]
-    ) === null)
+    ))
         return "can't add new refresh token in db";
 
     return true;

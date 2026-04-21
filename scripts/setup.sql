@@ -74,6 +74,11 @@ CREATE TABLE Internship
 
     title       TEXT NOT NULL UNIQUE,
     abstract    TEXT,
+
+    min_begin   INTEGER,
+    max_begin   INTEGER,
+    
+    duration    INTEGER, -- mounth length
     
     FOREIGN KEY (company_id) REFERENCES Companies(id)
     FOREIGN KEY (domain_id)  REFERENCES Domains(id)
@@ -118,7 +123,7 @@ CREATE TABLE Domains
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    title       TEXT NOT NULL,
+    title       TEXT NOT NULL UNIQUE,
     abstract    TEXT
 );
 
