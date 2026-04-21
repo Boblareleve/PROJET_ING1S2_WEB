@@ -56,16 +56,6 @@ CREATE TABLE Companies
     FOREIGN KEY (id) REFERENCES Accounts(id)
 );
 
-
-
-/* CREATE TABLE Offers
-(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    company_id INTEGER NOT NULL,
-    
-    FOREIGN KEY (company_id) REFERENCES Companies(id)
-); */
-
 CREATE TABLE Report_card
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -111,7 +101,7 @@ CREATE TABLE Documents
     
     student_accessible BOOLEAN,
     tutor_accessible BOOLEAN,
-    company_accessible BOOLEAN
+    company_accessible BOOLEAN,
     
     FOREIGN KEY (type_id)            REFERENCES Document_types(id),
     FOREIGN KEY (internship_file_id) REFERENCES Internship_files(id)
@@ -121,7 +111,7 @@ CREATE TABLE Document_types
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     
-    info TEXT,
+    info TEXT
 );
 
 CREATE TABLE Domains

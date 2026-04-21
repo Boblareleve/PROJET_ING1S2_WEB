@@ -40,14 +40,18 @@ const access_timeout: number  =          10 * 60 * 1000; // 10min
 
 authRouter.delete("/logout", async (req : any, res : any) =>
 {
+    console.log("logout");
     const cookie_refresh_token = req.cookies.token_refresh;
 
     clear_cookies(res);
     
     if (null === delete_db_token(cookie_refresh_token))
+    {
+        console.log("failed logout");
         return res.status(500).send("can't erase refresh token from database");
-    
-    res.end();
+    }
+    console.log("\tsuccess");
+    res.send();
 });
 
 authRouter.post("/login", async (req : any, res : any) =>

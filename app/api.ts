@@ -49,6 +49,7 @@ apiRouter.post('/company/internship', auth, (req: any, res: any) =>
                     WHERE title = ?`,
             [req.body.title]) !== null)
     {
+        console.log("name conflict 1");
         const base_title = req.body.title;
         let count = 1;
         req.body.title = base_title + " - " + count;
@@ -57,6 +58,7 @@ apiRouter.post('/company/internship', auth, (req: any, res: any) =>
             [req.body.title]) !== null)
         {
             count++;
+            console.log("name conflict " + count);
             req.body.title = base_title + " - " + count;
         }
     }
