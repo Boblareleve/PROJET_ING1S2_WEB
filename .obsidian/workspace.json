@@ -11,17 +11,12 @@
             "id": "f244edb267e65a0c",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "pdf",
               "state": {
-                "file": "doc/ihm.canvas",
-                "viewState": {
-                  "x": -3309.1311952590513,
-                  "y": 912.2908618181265,
-                  "zoom": -0.3983168316237088
-                }
+                "file": "doc/Projet_DevWeb_V1.pdf"
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "ihm"
+              "icon": "lucide-file-text",
+              "title": "Projet_DevWeb_V1"
             }
           }
         ]
@@ -185,8 +180,13 @@
   },
   "active": "f244edb267e65a0c",
   "lastOpenFiles": [
-    "doc/Projet_DevWeb_V1.pdf",
+    "src/router/modules/entreprise.route.ts",
+    "src/pages/entreprise/AjoutOffre.vue",
+    "src/pages/entreprise/AjoutOffre",
+    "src/pages/entreprise/Dashboard.vue",
+    "src/layouts/EntrepriseLayout.vue",
     "doc/ihm.canvas",
+    "doc/Projet_DevWeb_V1.pdf",
     "src/views/LoginPage.vue",
     "public/LoginPage.vue",
     "README.md",
