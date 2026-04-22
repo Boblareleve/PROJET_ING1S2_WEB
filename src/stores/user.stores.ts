@@ -32,11 +32,13 @@ export const useUserStore = defineStore('auth', {
         this.isLoading = false
       }
     },
-    logout() {
-      fetch('/auth/logout', { method: 'DELETE' }).then(() => {
-        this.user = null
-        this.isLoading = false
+    async logout() {
+      await fetch('/auth/logout', { 
+        method: 'DELETE',
+        credentials: 'include'
       })
+      this.user = null
+      this.isLoading = false
     }
   }
 })

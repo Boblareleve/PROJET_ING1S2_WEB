@@ -4,6 +4,7 @@ import { authRouter } from "./modules/auth.router"
 import { authGuard } from './guards/authGuard'
 import { getHomeByRole } from '@/utils/getHomeByRole'
 import { useUserStore } from '@/stores/user.stores'
+import { entrepriseRouter } from './modules/entreprise.router'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -15,6 +16,7 @@ const router = createRouter({
   }, // redirection correcte
     ...authRouter,
     ...adminRouter,
+    ...entrepriseRouter,
   ]
 })
 

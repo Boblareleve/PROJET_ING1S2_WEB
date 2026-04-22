@@ -20,7 +20,6 @@ onMounted(async () => {
     if (index !== -1) {
       // Mettre à jour l'étudiant dans la liste
       etudiants.value[index] = { ...form.value }
-      // Envoyer la mise à jour au serveur (ex: via une API)
       await fetch(`http://localhost:3000/etudiants/${form.value.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

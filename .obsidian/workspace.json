@@ -1,0 +1,196 @@
+{
+  "main": {
+    "id": "f7b11aea7d652a85",
+    "type": "split",
+    "children": [
+      {
+        "id": "df4bd331bfa6876a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "14132813caa2e72d",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "doc/ihm.canvas",
+                "viewState": {
+                  "x": -3285,
+                  "y": 849.5,
+                  "zoom": -0.29294179760932476
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "ihm"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "9db1054ef080c816",
+    "type": "split",
+    "children": [
+      {
+        "id": "94e9017ad5159674",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "53bf1cfa65398fff",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "df97b4dfd40da1d7",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "3d32837f52d1f4cb",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "77490410250a950b",
+    "type": "split",
+    "children": [
+      {
+        "id": "52c5188470bf7455",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f59b01463dcbd3ca",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "doc/Projet_DevWeb_V1.pdf",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Projet_DevWeb_V1"
+            }
+          },
+          {
+            "id": "e03d4d5e63f6fa4f",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "doc/Projet_DevWeb_V1.pdf",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Projet_DevWeb_V1"
+            }
+          },
+          {
+            "id": "52667144474ba031",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "7bbcfe515dc90a45",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "e40db5152b1e7ca9",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "doc/Projet_DevWeb_V1.pdf",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Projet_DevWeb_V1"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "14132813caa2e72d",
+  "lastOpenFiles": [
+    "src/stores/entreprise.stores.ts",
+    "doc/Projet_DevWeb_V1.pdf",
+    "doc/ihm.canvas",
+    "doc/cahier des charges.md"
+  ]
+}

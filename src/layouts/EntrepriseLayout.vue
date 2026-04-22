@@ -5,9 +5,9 @@
     const user = useUserStore()
     const router  = useRouter() 
     const route = useRoute()
-    function logout() {
+    async function logout() {
         
-        user.logout()
+        await user.logout()
         router.push("/auth/login")
     }
 
@@ -18,7 +18,7 @@
     <div class="parent">
         <div class="sidebar">
            <router-link to="/admin/dashboard"> Dashboard</router-link>
-        <router-link to="/admin/entreprise"> Entreprise</router-link>
+        <router-link to="/entreprise/ajouter-offre"> Ajouter une offre</router-link>
         </div>
         <div class="main">
             <div class="header">

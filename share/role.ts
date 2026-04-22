@@ -11,6 +11,8 @@ export interface Person {
 };
 
 export interface Companie {
+    id : number,
+    name : string,
     url : string,
 };
 

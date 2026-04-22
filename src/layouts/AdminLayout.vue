@@ -5,9 +5,9 @@
     const user = useUserStore()
     const router  = useRouter() 
     const route = useRoute()
-    function logout() {
+    async function logout() {
         
-        user.logout()
+        await user.logout()
         router.push("/auth/login")
     }
 
