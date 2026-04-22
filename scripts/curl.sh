@@ -43,55 +43,28 @@ case $1 in
             -b ./scripts/curl/cookies.txt \
             -d "{ \"title\": \"$2\", \"new\": { \"title\": \"$3\", \"abstract\": \"$4\" } }"
         ;;
+    query | q)
+        echo $0 query domain 
+        curl -i \
+            -X POST http://localhost:5173/api/query/internship \
+            -H "Content-Type: application/json; charset=UTF-8" \
+            -b ./scripts/curl/cookies.txt \
+            -d "{ \"domain\": \"$2\", \"date\": null, \"duration\": $3 }"
+        ;;
 
 # /* body: {
-#     title: ""
-#     abstract: ""
+#     domain: "", // title exact
+#     date: { // date of begining
+#         min: unix-time, 
+#         max: unix-time
+#     },
+#     duration: month,
+#     fuzzy: "" // title / abstract 
 # } */
-# apiRouter.post('/admin/domain', auth, (req: any, res: any) =>
-# {
-#     const full_account = get_full_account(req.email);
-#     if (typeof full_account == 'string')
-#         return res.status(401).send("failed too find admin account informations");
-#     if (full_account.role !== ROLE.ADMIN)
-#         return res.status(401).send("only admin can add domain");
-#     if (db_run(db, `
-#             INSERT INTO Domains (title, abstract)
-#             VALUES (?, ?);
-#             `,
-#             [req.body.title, req.body.abstract]
-#         ) !== null
-#     ) {
-#         return res.status(401).send("con't add domain: '" + req.body.title + "'");
-#     }
-#     res.send();
-# });
-# /* body: {
-#     title: ""
-#     abstract: ""
-# } */
-# apiRouter.put('/admin/domain', auth, (req: any, res: any) =>
-# {
-#     const full_account = get_full_account(req.email);
-#     if (typeof full_account == 'string')
-#         return res.status(401).send("failed too find admin account informations");
-#     if (full_account.role !== ROLE.ADMIN)
-#         return res.status(401).send("only admin can add domain");
-#     if (db_run(db, `
-#             UPDATE Domains 
-#             SET
-#                 title = ?,
-#                 abstract = ?
-#             WHERE
-#                 title = ?;
-#             `,
-#             [req.body.title, req.body.abstract, req.body.title]
-#         ) !== null
-#     ) {
-#         return res.status(401).send("can't update domain: '" + req.body.title + "'");
-#     }
-#     res.send();
-# });
+# // --> [{ domain: "title", company: "name",  }]
+# const duration_margin = 1;
+# apiRouter.post('/query/internship', auth, (req: any, res: any) =>
+
     *)
         echo $0 '<logout|login>'
         ;;

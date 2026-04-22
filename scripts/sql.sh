@@ -2,6 +2,12 @@
 
 
 case $1 in
+    tsetup)
+        rm var/db.db
+        sqlite3 var/db.db < scripts/setup.sql
+        chmod 777 var/db.db
+        sqlite3 var/db.db < scripts/test_accounts.sql
+        ;;
     setup)
         echo 'SETUP'
         rm var/db.db
@@ -13,8 +19,6 @@ case $1 in
         sqlite3 -line var/db.db 'DELETE FROM Tokens;'
         ;;
     tokens)
-        # sqlite3 -line var/db.db 'SELECT * FROM Tokens;'
-                # t.expiration,
         sqlite3 -line var/db.db "SELECT 
                 t.id,
                 t.token,
