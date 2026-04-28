@@ -60,7 +60,7 @@ authRouter.post("/login", async (req : any, res : any) =>
     
     try {
         // all functions called there return a string on error
-
+        console.log("req.body.email: " + req.body.email);
         const account = get_full_account(req.body.email);
         if (typeof account === 'string') throw account;
         
@@ -249,8 +249,9 @@ function get_role(account : role.Account) : role.Account | string
         account.info = { url: res.url_site };
         return account; 
     }
-    if (res = db_get(db_auth, "SELECT * FROM Admins WHERE id = ?;",       [account.id]) == null)
-        return "can't find role";
+    // c'est un troll
+    // if (res = db_get(db_auth, "SELECT * FROM Admins WHERE id = ?;",       [account.id]) == null)
+    //     return "can't find role ad";
 
     
     account.info = {
@@ -266,7 +267,7 @@ function get_role(account : role.Account) : role.Account | string
     if (res = db_get(db_auth, "SELECT * FROM Students WHERE id = ?;",     [account.id]) != null)
         return { ...account, role: role.ROLE.STUDENT };
 
-    return "can't find role";
+    return "can't find role end";
 }
 
 

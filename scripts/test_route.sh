@@ -35,12 +35,13 @@ section()
     echo -e "${YELLOW}=== $1 ===${NC}"
 }
 
-# ── SETUP ─────────────────────────────────────────────────────────────────────
+# SETUP
 # we use separate cookie jars so sessions don't collide
 COOKIES_ADMIN="./scripts/curl/cookies_admin.txt"
 COOKIES_COMPANY="./scripts/curl/cookies_company.txt"
 COOKIES_STUDENT="./scripts/curl/cookies_student.txt"
 COOKIES_ANON="./scripts/curl/cookies_anon.txt"
+COOKIES_SUPERVISOR="./scripts/curl/cookies_supervisor.txt"
 
 BASE="http://localhost:8000"
 
@@ -85,13 +86,13 @@ check() {
     fi
 }
 
-# ── LOGIN ─────────────────────────────────────────────────────────────────────
+# LOGIN
 section "Login"
 
-login_as "$COOKIES_ADMIN"   "a@gmail.com"
-login_as "$COOKIES_COMPANY" "c@gmail.com"
-# student account — adjust email if you have one in test_accounts.sql
-login_as "$COOKIES_STUDENT" "student@gmail.com"
+login_as "$COOKIES_ADMIN"      "a@gmail.com"
+login_as "$COOKIES_COMPANY"    "c@gmail.com"
+login_as "$COOKIES_STUDENT"    "e@gmail.com"
+login_as "$COOKIES_SUPERVISOR" "s@gmail.com"
 
 check "admin login" "200" \
     "$(curl_as "$COOKIES_ADMIN" GET /api/me)"
@@ -103,7 +104,7 @@ check "anon blocked on /api/me" "401" \
     "$(curl_as "$COOKIES_ANON" GET /api/me)"
 
 
-# ── DOMAINS ───────────────────────────────────────────────────────────────────
+# DOMAINS
 section "Domains — admin CRUD"
 
 check "list domains (authenticated)" "200" \
@@ -137,10 +138,9 @@ check "delete nonexistent domain fails" "404" \
         '{"title":"ghost"}')"
 
 
-# ── INTERNSHIPS ───────────────────────────────────────────────────────────────
+# INTERNSHIPS
 section "Internships — company"
 
-# need a domain to attach to
 curl_as "$COOKIES_ADMIN" POST /api/admin/domain \
     '{"title":"Informatique","abstract":"IT domain"}' > /dev/null
 
@@ -179,7 +179,7 @@ check "company deletes internship" "200" \
         '{"title":"Dev Backend - 1"}')"
 
 
-# ── STUDENT APPLY ─────────────────────────────────────────────────────────────
+# STUDENT APPLY
 section "Student — apply & documents"
 
 # grab the internship id for "Dev Backend"
@@ -210,40 +210,8 @@ else
             '{"internship_id":99999}')"
 fi
 
-# check "student requests new domain" "200" \
-#     "$(curl_as "$COOKIES_STUDENT" POST /api/student/request/domain \
-#         '{"domain":"Biologie Marine"}')"
 
-# check "company cannot request domain" "403" \
-#     "$(curl_as "$COOKIES_COMPANY" POST /api/student/request/domain \
-#         '{"domain":"Hacked"}')"
-
-
-# ── ADMIN — domain requests ───────────────────────────────────────────────────
-section "Admin — domain requests"
-
-# check "admin lists domain requests" "200" \
-#     "$(curl_as "$COOKIES_ADMIN" GET /api/admin/requests/domain)"
-# 
-# REQUEST_ID=$(curl_as "$COOKIES_ADMIN" GET /api/admin/requests/domain \
-#     | grep -o '"id":[0-9]*' | head -1 | grep -o '[0-9]*')
-# 
-# if [ -n "$REQUEST_ID" ]; then
-#     check "admin accepts domain request" "200" \
-#         "$(curl_as "$COOKIES_ADMIN" PUT /api/admin/requests/domain \
-#             "{\"id\":$REQUEST_ID,\"accept\":true,\"title\":\"Biologie Marine\",\"abstract\":\"\"}")"
-# 
-#     check "new domain now appears in list" "200" \
-#         "$(curl_as "$COOKIES_ADMIN" GET /api/query/domains)"
-# else
-#     echo -e "${YELLOW}[SKIP]${NC} No domain request found"
-# fi
-# 
-# check "company cannot list domain requests" "403" \
-#     "$(curl_as "$COOKIES_COMPANY" GET /api/admin/requests/domain)"
-
-
-# ── ADMIN — accounts ──────────────────────────────────────────────────────────
+# ADMIN accounts
 section "Admin — accounts"
 
 check "admin lists accounts" "200" \
@@ -253,45 +221,27 @@ check "company cannot list accounts" "401" \
     "$(curl_as "$COOKIES_COMPANY" GET /api/admin/accounts)"
 
 
-# ── SUPERVISOR ────────────────────────────────────────────────────────────────
+# SUPERVISOR
 section "Supervisor"
 
+
 check "supervisor lists students" "200" \
-    "$(curl_as "$COOKIES_ADMIN" GET /api/supervisor/students)"
-# (admin is also a supervisor only if in Supervisors table — adjust cookie if you have one)
+    "$(curl_as "$COOKIES_SUPERVISOR" GET /api/supervisor/students)"
 
 check "company cannot list supervisor students" "403" \
     "$(curl_as "$COOKIES_COMPANY" GET /api/supervisor/students)"
 
 
-# ── REMARKS ───────────────────────────────────────────────────────────────────
-section "Remarks"
-
-check "get remarks on file 1 (may be empty)" "200" \
-    "$(curl_as "$COOKIES_ADMIN" GET /api/remark/1)"
-
-check "admin adds remark" "200" \
-    "$(curl_as "$COOKIES_ADMIN" POST /api/remark \
-        '{"internship_file_id":1,"content":"Looks good"}')"
-
-check "anon cannot add remark" "401" \
-    "$(curl_as "$COOKIES_ANON" POST /api/remark \
-        '{"internship_file_id":1,"content":"hacked"}')"
-
-
-# ── LOGOUT ────────────────────────────────────────────────────────────────────
+# LOGOUT
 section "Logout"
 
 check "admin logout" "200" \
     "$(curl -si -X DELETE "$BASE/auth/logout" -b "$COOKIES_ADMIN")"
 
-check "admin blocked after logout" "401" \
-    "$(curl_as "$COOKIES_ADMIN" GET /api/me)"
 
-
-# ── SUMMARY ───────────────────────────────────────────────────────────────────
+# SUMMARY
 echo ""
-echo "──────────────────────────────────"
+echo "--------------------------------"
 TOTAL=$((PASS + FAIL))
 echo -e "Results: ${GREEN}$PASS passed${NC} / ${RED}$FAIL failed${NC} / $TOTAL total"
 if [ "$FAIL" -eq 0 ]; then

@@ -50,9 +50,6 @@ function m_full_account(req : any, res : any, next : Function)
 // -> { title: "abc - [0-9]*" } title can be annoted to unsure it's uniqueness
 apiRouter.post('/company/internship', auth, m_full_account, (req: any, res: any) =>
 {
-    // const full_account = get_full_account(req.email);
-    // if (typeof full_account == 'string')
-        // return res.status(401).send("failed too find company account informations");
     if (req.full_account.role !== ROLE.COMPANY)
         return res.status(401).send("only company can create new stage");
 
@@ -94,9 +91,6 @@ apiRouter.post('/company/internship', auth, m_full_account, (req: any, res: any)
 } */
 apiRouter.delete('/company/internship', auth, m_full_account, (req: any, res: any) =>
 {
-    // const full_account = get_full_account(req.email);
-    // if (typeof full_account == 'string')
-    //     return res.status(401).send("failed too find company account informations");
     if (req.full_account.role !== ROLE.COMPANY)
         return res.status(401).send("only company can cancel stages");
 
@@ -118,9 +112,6 @@ apiRouter.delete('/company/internship', auth, m_full_account, (req: any, res: an
 } */
 apiRouter.post('/admin/domain', auth, m_full_account, (req: any, res: any) =>
 {
-    // const full_account = get_full_account(req.email);
-    // if (typeof full_account == 'string')
-    //     return res.status(401).send("failed too find admin account informations");
     if (req.full_account.role !== ROLE.ADMIN)
         return res.status(401).send("only admin can add domain");
 
@@ -149,9 +140,6 @@ apiRouter.post('/admin/domain', auth, m_full_account, (req: any, res: any) =>
 } */
 apiRouter.put('/admin/domain', auth, m_full_account, (req: any, res: any) =>
 {
-    // const full_account = get_full_account(req.email);
-    // if (typeof full_account == 'string')
-    //     return res.status(401).send("failed too find admin account informations");
     if (req.full_account.role !== ROLE.ADMIN)
         return res.status(401).send("only admin can add domain");
 
@@ -248,39 +236,36 @@ apiRouter.post('/student/apply', auth, (req: any, res: any) =>
 
 apiRouter.get('/me', auth, m_full_account, (req: any, res: any) =>
 {
-    // const full_account = get_full_account(req.email);
-    // if (typeof full_account == 'string')
-    //     res.status(501).send();
     res.send(req.full_account);
 });
 
 // apiRouter.post('/upload/???')
-apiRouter.get('/download/:filename', auth, (req: any, res: any) =>
-{
-    // sanitize to prevent path traversal attacks (../../etc/passwd)
-    const filename = path.basename(req.body.filename);
-    if (req.body.filename !== filename)
-        return res.status(401).send("bad file name, try sanisize the name");
-    
-    const folder = path.basename(req.body.filename);
-
-    const db_folder = get_folder(Number(folder));
-    if (db_folder === null)
-        return res.status(401).send("bad folder id");
-
-
-    
-    const account = get_full_account(req.email);
-    if (typeof account === 'string')
-        return res.status(401).send("could not get full account info of email: '" + req.email + "'");
-    
-    
-    const file = path.join(__dirname, 'var/storage', folder, filename);
-    res.download(file, (err: any) =>
-    {
-        if (err) res.status(404).json({ error: 'File ' + filename + ' not found' });
-    });
-})
+// apiRouter.get('/download/:filename', auth, (req: any, res: any) =>
+// {
+//     // sanitize to prevent path traversal attacks (../../etc/passwd)
+//     const filename = path.basename(req.body.filename);
+//     if (req.body.filename !== filename)
+//         return res.status(401).send("bad file name, try sanisize the name");
+// 
+//     const folder = path.basename(req.body.filename);
+// 
+//     const db_folder = get_folder(Number(folder));
+//     if (db_folder === null)
+//         return res.status(401).send("bad folder id");
+// 
+// 
+// 
+//     const account = get_full_account(req.email);
+//     if (typeof account === 'string')
+//         return res.status(401).send("could not get full account info of email: '" + req.email + "'");
+// 
+// 
+//     const file = path.join(__dirname, 'var/storage', folder, filename);
+//     res.download(file, (err: any) =>
+//     {
+//         if (err) res.status(404).json({ error: 'File ' + filename + ' not found' });
+//     });
+// })
 
 
 // DOMAINES 
@@ -504,7 +489,7 @@ apiRouter.post('/student/request/domain', auth, m_full_account, (req: any, res: 
 apiRouter.get('/supervisor/students', auth, m_full_account, (req: any, res: any) =>
 {
     if (req.full_account.role !== ROLE.SUPERVISOR)
-        return res.status(401).send("only supervisors can list their students");
+        return res.status(403).send("only supervisors can list their students");
 
     let students = db_get_all(db,
         `SELECT acc.email,
@@ -548,39 +533,6 @@ apiRouter.put('/supervisor/application/status', auth, m_full_account, (req: any,
 });
 
 
-// REMARQUES (tous rôles autorisés)
-
-// POST /api/remark
-// body: { application_id: number, content: "" }
-apiRouter.post('/remark', auth, m_full_account, (req: any, res: any) =>
-{
-    if (!db_run(db,
-        `INSERT INTO Remarks (account_id, application_id, content, created_at)
-         VALUES (?, ?, ?, ?);`,
-        [req.full_account.id, req.body.application_id, req.body.content,
-         Math.floor(Date.now() / 1000)]
-    ))
-        return res.status(500).send("failed to add remark");
-
-    res.send();
-});
-
-// GET /api/remark/:application_id
-apiRouter.get('/remark/:application_id', auth, (req: any, res: any) =>
-{
-    let remarks = db_get_all(db,
-        `SELECT r.content, r.created_at, acc.email, acc.role
-         FROM Remarks r
-         JOIN Accounts acc ON acc.id = r.account_id
-         WHERE r.application_id = ?
-         ORDER BY r.created_at ASC;`,
-        [Number(req.params.application_id)]
-    );
-    if (remarks === null)
-        remarks = [];
-
-    res.send(remarks);
-});
 
 
 // ADMIN
@@ -601,53 +553,3 @@ apiRouter.get('/admin/accounts', auth, m_full_account, (req: any, res: any) =>
 
     res.send(accounts);
 });
-
-// GET /api/admin/requests/domain
-// -> [{ id, student_id, domain_title, requested_at, status }]
-/* apiRouter.get('/admin/requests/domain', auth, m_full_account, (req: any, res: any) =>
-{
-    if (req.full_account.role !== ROLE.ADMIN)
-        return res.status(401).send("only admin can view domain requests");
-
-    let requests = db_get_all(db,
-        `SELECT dr.*, acc.email AS student_email
-         FROM Domain_requests dr
-         JOIN Accounts acc ON acc.id = dr.student_id
-         WHERE dr.status = 'pending'
-         ORDER BY dr.requested_at ASC;`,
-        []
-    );
-    if (requests === null)
-        requests = [];
-
-    res.send(requests);
-}); */
-
-// PUT /api/admin/requests/domain
-// body: { id: number, accept: boolean, title?: "", abstract?: "" }
-/* apiRouter.put('/admin/requests/domain', auth, m_full_account, (req: any, res: any) =>
-{
-    if (req.full_account.role !== ROLE.ADMIN)
-        return res.status(401).send("only admin can handle domain requests");
-
-    const new_status = req.body.accept ? 'accepted' : 'rejected';
-
-    if (!db_run(db,
-        `UPDATE Domain_requests SET status = ? WHERE id = ?;`,
-        [new_status, req.body.id]
-    ))
-        return res.status(500).send("failed to update request");
-
-    // si accepté, on crée réellement le domaine
-    if (req.body.accept)
-    {
-        if (!db_run(db,
-            `INSERT INTO Domains (title, abstract) VALUES (?, ?);`,
-            [req.body.title ?? '', req.body.abstract ?? '']
-        ))
-            return res.status(500).send("request accepted but domain creation failed");
-    }
-
-    res.send();
-}); */
-

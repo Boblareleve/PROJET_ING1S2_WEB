@@ -73,29 +73,6 @@ case $1 in
         ;;
     
 
-    # ADMIN
-    
-    # list_accounts | la)
-    #     curl -i \
-    #         -X GET http://localhost:5173/api/admin/accounts \
-    #         -H "Content-Type: application/json; charset=UTF-8" \
-    #         -b ./scripts/curl/cookies.txt
-    #     ;;
-    # # $2 = accept(1|0)  $3 = request_id  $4 = domain_title  $5 = abstract
-    # handle_domain_request | hdr)
-    #     curl -i \
-    #         -X PUT http://localhost:5173/api/admin/requests/domain \
-    #         -H "Content-Type: application/json; charset=UTF-8" \
-    #         -b ./scripts/curl/cookies.txt \
-    #         -d "{ \"id\": $3, \"accept\": $([ "$2" = "1" ] && echo true || echo false), \"title\": \"$4\", \"abstract\": \"$5\" }"
-    #     ;;
-    # list_domain_requests | ldr)
-    #     curl -i \
-    #         -X GET http://localhost:5173/api/admin/requests/domain \
-    #         -H "Content-Type: application/json; charset=UTF-8" \
-    #         -b ./scripts/curl/cookies.txt
-    #     ;;
-
 
     # COMPANY
 
@@ -154,7 +131,7 @@ case $1 in
             -d "{ \"domain\": \"$2\" }"
         ;;
 
-    # ── SUPERVISOR ───────────────────────────────────────────────────────────
+    # SUPERVISOR
 
     my_students | ms)
         curl -i \
@@ -171,7 +148,7 @@ case $1 in
             -d "{ \"application_id\": $2, \"status\": \"$3\" }"
         ;;
 
-    # ── REMARQUES ────────────────────────────────────────────────────────────
+    # REMARQUES
 
     add_remark | ar)
         # $2 = application_id  $3 = content
@@ -189,7 +166,7 @@ case $1 in
             -b ./scripts/curl/cookies.txt
         ;;
 
-    # ── ME ───────────────────────────────────────────────────────────────────
+    # ME
 
     me)
         curl -i \
