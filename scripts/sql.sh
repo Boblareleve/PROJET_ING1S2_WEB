@@ -1,7 +1,7 @@
 #!/bin/bash
 
-
 case $1 in
+
     tsetup)
         rm var/db.db
         sqlite3 var/db.db < scripts/setup.sql
@@ -77,7 +77,19 @@ case $1 in
         sqlite3 -line var/db.db "DELETE FROM Domains;"
         ;;
     *)
-        echo unkown command
+        echo unkown command:
+        echo '    tsetup'
+        echo '    setup'
+        echo '    erase_tokens'
+        echo '    tokens'
+        echo '    test_accounts'
+        echo '    companies'
+        echo '    admins'
+        echo '    accounts'
+        echo '    stages'
+        echo '    reset_stages'
+        echo '    domain'
+        echo '    reset_domain'
         ;;
 
 esac

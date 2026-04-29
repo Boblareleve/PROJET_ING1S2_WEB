@@ -1,4 +1,4 @@
-
+// file: role.ts
 
 export interface Admin      {};
 export interface Supervisor {};
