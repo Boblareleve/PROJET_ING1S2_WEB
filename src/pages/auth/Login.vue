@@ -18,8 +18,7 @@ import { ROLE } from '../../../share/role';
         try {
           
             await store.login(email.value, password.value)
-              console.log("après login, user:", store.user)  // ← ici
-              console.log("role:", store.user?.role)          // ← et ici
+              console.log("user complet:", JSON.stringify(store.user, null, 2))
             // Redirection selon le rôle
             switch (store.user?.role) {
               case ROLE.ADMIN:

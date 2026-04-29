@@ -11,6 +11,14 @@
                 <textarea id="description" v-model="offre.description" required></textarea>
             </div>
             <div>
+              <label for="beginDate">Date de début :</label>
+              <input id="beginDate" v-model="offre.beginDate" type="date" required>
+            </div>
+            <div>
+              <label for="endDate">Date de fin :</label>
+              <input id="endDate" v-model="offre.endDate" type="date" required>
+            </div>
+            <div>
                 <label for="duree">Durée (en mois) :</label>
                 <input id="duree" v-model.number="offre.duree" type="number" min="1" required>
             </div>

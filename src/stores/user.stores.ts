@@ -1,17 +1,25 @@
-import type { Account } from '../../share/role.ts'
-import { defineStore } from "pinia";
-
-type User = Account
+import { defineStore } from 'pinia'
+import type { Account, Person, Companie } from '../../share/role.ts'
+import { ROLE } from '../../share/role.ts'
 
 export const useUserStore = defineStore('auth', {
   persist: true,
   state: () => ({
-    user: null as User | null,
-    isLoading: false as boolean
+    user: null as Account | null,
+    isLoading: false,
   }),
   getters: {
     isConnected: (state) => state.user !== null,
-    hasRole: (state) => (role: number) => state.user?.role === role
+    hasRole: (state) => (role: number) => state.user?.role === role,
+
+    // Typage automatique selon le rôle
+    isCompany:  (state) => state.user?.role === ROLE.COMPANY,
+    isStudent:  (state) => state.user?.role === ROLE.STUDENT,
+    isAdmin:    (state) => state.user?.role === ROLE.ADMIN,
+
+    // Accès typé à info
+    asPerson:  (state) => state.user?.info as Person   | null,
+    asCompanie:(state) => state.user?.info as Companie | null,
   },
   actions: {
     async login(email: string, password: string) {
