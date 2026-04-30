@@ -57,6 +57,32 @@ case $1 in
             -d "{ \"title\": \"$2\" }"
         ;;
 
+    create_account_person) 
+        curl -i \
+            -X POST http://localhost:5173/api/admin/accounts \
+            -H "Content-Type: application/json; charset=UTF-8" \
+            -b ./scripts/curl/cookies.txt \
+            -d "{ \"email\": \"$2\", \"password\": \"$3\", \"role\": $4, \
+                  \"first_name\": \"$5\", \"last_name\": \"$6\" }"
+        ;;
+        
+    create_account_admin) 
+        curl -i \
+            -X POST http://localhost:5173/api/admin/accounts \
+            -H "Content-Type: application/json; charset=UTF-8" \
+            -b ./scripts/curl/cookies.txt \
+            -d "{ \"email\": \"$2\", \"password\": \"$3\", \"role\": 0 }"
+        ;;
+
+    create_account_company) 
+        curl -i \
+            -X POST http://localhost:5173/api/admin/accounts \
+            -H "Content-Type: application/json; charset=UTF-8" \
+            -b ./scripts/curl/cookies.txt \
+            -d "{ \"email\": \"$2\", \"password\": \"$3\", \"role\": 3, \
+                  \"name_company\": \"$4\", \"url_site\": \"$5\" }"
+        ;;
+    
     list_domains | ld)
         curl -i \
             -X GET http://localhost:5173/api/query/domains \
@@ -179,7 +205,7 @@ case $1 in
         echo "Usage: $0 <command> [args]"
         echo ""
         echo "Auth:"
-        echo "  login|in       <email_prefix>          login (appends @gmail.com)"
+        echo "  login|in       <email_prefix>           login (appends @gmail.com)"
         echo "  logout|out                              logout"
         echo "  me                                      infos du compte connecté"
         echo ""

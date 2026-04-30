@@ -1,12 +1,12 @@
+// file: auth.ts
+
 import jwt from 'jsonwebtoken'
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import sqlite3 from 'better-sqlite3'
 
 import { createHash } from 'crypto'
-// import sha256 from 'js-sha256'
 
-// import path from 'path'
 
 
 import { db_get, db_run, db_get_all } from "./db/db_wrapper.ts"
@@ -28,7 +28,6 @@ const JWT_AC_SECRET: string = process.env.JWT_SECRET    || 'your---secdret-key';
 const JWT_RE_SECRET: string = process.env.JWT_RE_SECRET || 'y--secdret-key';
 
 
-// const token = "token";
 const cookie_token_access: string  = "token_access"
 const cookie_token_refresh: string = "token_refresh"
 
@@ -90,14 +89,6 @@ authRouter.post("/login", async (req : any, res : any) =>
 });
 
 
-// router.get("/refresh", async (req, res) => 
-// {
-//     if (is_connected(req, res))
-//         res.header(401).send("logged out");
-//     res.send("token refreshed");
-// });
-
-
 function delete_all_tokens()
 {
     if (!db_run(db_auth, `TRUNCATE TABLE RTokens;`, []))
@@ -116,7 +107,6 @@ function delete_expired_tokens()
 
 function delete_db_token(token : string) 
 {
-    // console.log("try delete db_token: " + token);
     try {
         const payload = jwt.verify(token, JWT_RE_SECRET);
 
@@ -142,7 +132,6 @@ function set_cookies(res : any, access_token : string, refresh_token : string)
         httpOnly: true,
         secure: true, // true if using HTTPS
         sameSite: 'Strict',
-        // maxAge: refresh_timeout // 7d only managed with db Tokens table
     })
     res.cookie(cookie_token_access, access_token, {
         httpOnly: true,

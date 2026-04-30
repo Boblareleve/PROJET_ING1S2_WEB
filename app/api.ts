@@ -4,7 +4,7 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import type { Account } from '../share/role.ts'
 import { ROLE } from '../share/role.ts'
-
+import { createHash } from 'crypto'
 
 // download files ?
 import path from 'path'
@@ -553,3 +553,91 @@ apiRouter.get('/admin/accounts', auth, m_full_account, (req: any, res: any) =>
 
     res.send(accounts);
 });
+
+
+// POST /api/admin/accounts
+// { email, password, role, first_name?, last_name?, name_company?, url_site? }
+apiRouter.post('/admin/accounts', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.ADMIN)
+        return res.status(401).send("only admin can create accounts");
+
+    if (req.body.email    === undefined 
+     || req.body.password === undefined
+     || req.body.role     === undefined)
+        return res.status(401).send("missing field in request");
+    
+    if ((req.body.role === ROLE.SUPERVISOR || req.body.role === ROLE.STUDENT)
+     && (req.body.first_name === undefined || req.body.last_name  === undefined))
+        return res.status(401).send("missing field in request for a person");
+    
+    else if (req.body.role === ROLE.COMPANY 
+          && (req.body.name_company === undefined || req.body.url_site === undefined))
+        return res.status(401).send("missing field in request for a company");
+    
+
+    // check email not already taken
+    if (db_get(db, `SELECT 1 FROM Accounts WHERE email = ?;`, [req.body.email]) !== null)
+        return res.status(409).send("email '" + req.body.email + "' already exists");
+
+    const password_hash = createHash('sha256').update(req.body.password).digest('hex');
+
+    if (!db_run(db, `
+        INSERT INTO Accounts (email, password_hash)
+        VALUES (?, ?);`,
+        [req.body.email, password_hash]
+    ))
+        return res.status(500).send("couldn't create account");
+
+    const account = db_get(db, `SELECT id FROM Accounts WHERE email = ?;`, [req.body.email]);
+    if (account === null)
+        return res.status(500).send("account created but couldn't retrieve id");
+
+    switch (req.body.role)
+    {
+        case ROLE.ADMIN:
+            if (!db_run(db, `INSERT INTO Admins (id) VALUES (?);`, [account.id]))
+                return res.status(500).send("couldn't assign admin role");
+            break;
+
+        case ROLE.SUPERVISOR:
+
+            if (!db_run(db, `INSERT INTO Supervisors (id) VALUES (?);`, [account.id]))
+                return res.status(500).send("couldn't assign supervisor role");
+            if (!db_run(db, `INSERT INTO Persons (id, first_name, last_name) VALUES (?, ?, ?);`,
+                [account.id, req.body.first_name, req.body.last_name]
+            ))
+                return res.status(500).send("couldn't create person info");
+            break;
+
+        case ROLE.STUDENT:
+            if (!db_run(db, `INSERT INTO Students (id) VALUES (?);`, [account.id]))
+                return res.status(500).send("couldn't assign student role");
+            if (!db_run(db, `INSERT INTO Persons (id, first_name, last_name) VALUES (?, ?, ?);`,
+                [account.id, req.body.first_name, req.body.last_name]
+            ))
+                return res.status(500).send("couldn't create person info");
+            break;
+
+        case ROLE.COMPANY:
+            if (!req.body.name_company)
+                return res.status(400).send("name_company is required for company accounts");
+            if (!db_run(db, `INSERT INTO Companies (id, name_company, url_site) VALUES (?, ?, ?);`,
+                [account.id, req.body.name_company, req.body.url_site ?? null]
+            ))
+                return res.status(500).send("couldn't assign company role");
+            break;
+
+        default:
+            db_run(db, `DELETE FROM Accounts WHERE id = ?;`, [account.id]);
+            return res.status(400).send("unrecognized role: " + req.body.role);
+    }
+
+    res.send(); //{ email: req.body.email, role: req.body.role });
+});
+
+
+// DELETE /api/admin/accounts
+// { email } -> null
+
+
