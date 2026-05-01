@@ -638,6 +638,25 @@ apiRouter.post('/admin/accounts', auth, m_full_account, (req: any, res: any) =>
 
 
 // DELETE /api/admin/accounts
+// { email }
+apiRouter.delete('/admin/accounts', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.ADMIN)
+        return res.status(401).send("only admin can delete accounts");
+
+    if (req.body.email === undefined)
+        return res.status(400).send("missing email");
+
+    if (db_get(db, `SELECT 1 FROM Accounts WHERE email = ?;`, [req.body.email]) === null)
+        return res.status(404).send("account '" + req.body.email + "' not found");
+
+    if (!db_run(db, `DELETE FROM Accounts WHERE email = ?;`, [req.body.email]))
+        return res.status(500).send("couldn't delete account");
+
+    res.send();
+});
+
+// DELETE /api/admin/accounts
 // { email } -> null
 
 

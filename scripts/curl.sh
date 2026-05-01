@@ -83,6 +83,15 @@ case $1 in
                   \"name_company\": \"$4\", \"url_site\": \"$5\" }"
         ;;
     
+    delete_account)
+        curl -i \
+            -X DELETE http://localhost:5173/api/admin/accounts \
+            -H "Content-Type: application/json; charset=UTF-8" \
+            -b ./scripts/curl/cookies.txt \
+            -d "{ \"email\": \"$2@gmail.com\" }"
+        ;;
+
+    
     list_domains | ld)
         curl -i \
             -X GET http://localhost:5173/api/query/domains \
