@@ -26,7 +26,7 @@ B. Insertion des données de test :
 Une fois la base de données prête, vous pouvez démarrer le 
 serveur de développement via le script situé à la racine :
 
-$ bash restart
+$ bash scripts/restart.sh
 
 Le serveur sera alors accessible sur votre navigateur à 
 l'adresse : http://localhost:5173
