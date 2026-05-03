@@ -34,14 +34,12 @@ l'adresse : http://localhost:5173
 
 3. STRUCTURE DU DEPOT
 
-
-- scripts/ : Utilitaires pour la base de données SQL.
-- api/     : Backend (requêtes et accès aux données).
+- scripts/ : Utilitaires pour la base de données SQL et les tests.
+- app/     : Backend (requêtes et accès aux données).
 - src/     : Code source du frontend (Vue.js).
 
 
 4. MAINTENANCE
---------------
 
 En cas de problème de droits d'exécution sur les scripts, 
 utilisez la commande suivante :
