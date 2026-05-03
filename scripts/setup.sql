@@ -13,7 +13,7 @@ CREATE TABLE Tokens
     expiration      INTEGER NOT NULL,
     token           TEXT UNIQUE NOT NULL,
     
-    FOREIGN KEY (account_id) REFERENCES Accounts(id)
+    FOREIGN KEY (account_id) REFERENCES Accounts(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Persons
@@ -22,7 +22,7 @@ CREATE TABLE Persons
     first_name TEXT NOT NULL,
     last_name  TEXT NOT NULL,
 
-    FOREIGN KEY (id) REFERENCES Accounts(id)
+    FOREIGN KEY (id) REFERENCES Accounts(id) ON DELETE CASCADE
 );
 
 
@@ -30,21 +30,21 @@ CREATE TABLE Admins
 (
     id INTEGER PRIMARY KEY,
     
-    FOREIGN KEY (id) REFERENCES Accounts(id)
+    FOREIGN KEY (id) REFERENCES Accounts(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Supervisors
 (
     id INTEGER PRIMARY KEY,
     
-    FOREIGN KEY (id) REFERENCES Accounts(id)
+    FOREIGN KEY (id) REFERENCES Accounts(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Students
 (
     id INTEGER PRIMARY KEY,
     
-    FOREIGN KEY (id) REFERENCES Accounts(id)
+    FOREIGN KEY (id) REFERENCES Accounts(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Companies
@@ -54,7 +54,7 @@ CREATE TABLE Companies
     name_company TEXT NOT NULL UNIQUE,
     url_site TEXT,
 
-    FOREIGN KEY (id) REFERENCES Accounts(id)
+    FOREIGN KEY (id) REFERENCES Accounts(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Report_card
@@ -64,7 +64,7 @@ CREATE TABLE Report_card
 
     file_path TEXT,
 
-    FOREIGN KEY (student_id) REFERENCES Students(id)
+    FOREIGN KEY (student_id) REFERENCES Students(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Internship
@@ -81,8 +81,8 @@ CREATE TABLE Internship
     
     duration    INTEGER, -- mounth length
     
-    FOREIGN KEY (company_id) REFERENCES Companies(id)
-    FOREIGN KEY (domain_id)  REFERENCES Domains(id)
+    FOREIGN KEY (company_id) REFERENCES Companies(id) ON DELETE CASCADE,
+    FOREIGN KEY (domain_id)  REFERENCES Domains(id)   ON DELETE SET NULL
 );
 
 
@@ -111,8 +111,8 @@ CREATE TABLE Documents
     tutor_accessible BOOLEAN,
     company_accessible BOOLEAN,
     
-    FOREIGN KEY (type_id)            REFERENCES Document_types(id),
-    FOREIGN KEY (internship_file_id) REFERENCES Internship_files(id)
+    FOREIGN KEY (type_id)            REFERENCES Document_types(id)   ON DELETE RESTRICT,
+    FOREIGN KEY (internship_file_id) REFERENCES Internship_files(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Document_types
