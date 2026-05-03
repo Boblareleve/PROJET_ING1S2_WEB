@@ -253,4 +253,59 @@ onMounted(fetchDomains)
   padding: 2rem;
   box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
 }
+
+modal-title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.field {
+  display: flex;
+  flex-direction: column; 
+  gap: 0.5rem;          
+  margin-bottom: 1.25rem; 
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.field input, 
+.field textarea {
+  width: 100%;         
+  padding: 0.75rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  box-sizing: border-box; 
+}
+
+.field input:focus, 
+.field textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.modal-actions .btn-primary:first-child {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.modal-actions .btn-primary:first-child:hover {
+  background-color: #e2e8f0;
+}
 </style>
