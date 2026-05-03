@@ -49,3 +49,9 @@ INSERT INTO Admins (id)
 
 INSERT INTO Admins (id)
     SELECT id FROM Accounts WHERE "quentin82.donier@gmail.com" = email;
+
+INSERT INTO Document_types (id, info) VALUES (1, 'rapport');
+INSERT INTO Document_types (id, info) VALUES (2, 'resume');
+INSERT INTO Document_types (id, info) VALUES (3, 'evaluation');
+INSERT INTO Document_types (id, info) VALUES (4, 'convention');
+INSERT INTO Document_types (id, info) VALUES (5, 'autre');

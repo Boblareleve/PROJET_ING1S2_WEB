@@ -4,6 +4,23 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import type { Account } from '../share/role.ts'
 import { ROLE } from '../share/role.ts'
+import { createHash } from 'crypto';
+
+import multer from 'multer'
+import fs from 'fs'
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = './var/storage/';
+        if (!fs.existsSync(dir))
+            fs.mkdirSync(dir);
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '_' + file.originalname);
+    }
+});
+const upload = multer({ storage });
 
 
 // download files ?
@@ -214,6 +231,7 @@ apiRouter.post('/query/internship', auth, (req: any, res: any) =>
         const element = found[index];
         
         parsed.push({
+            id: element.id,
             domain:  db_get(db, `SELECT title        FROM Domains   WHERE id = ?`,  [element.domain_id]),
             company: db_get(db, `SELECT name_company FROM Companies WHERE id = ?`, [element.company_id]),
             title: element.title,
@@ -228,9 +246,34 @@ apiRouter.post('/query/internship', auth, (req: any, res: any) =>
 });
 
 
-apiRouter.post('/student/apply', auth, (req: any, res: any) =>
+apiRouter.post('/student/apply', auth, m_full_account, (req: any, res: any) =>
 {
-    
+    if (req.full_account.role !== ROLE.STUDENT)
+        return res.status(401).send("only students can apply");
+
+    const internship = db_get(db,
+        `SELECT id FROM Internship WHERE id = ?;`,
+        [req.body.internship_id]
+    );
+    if (internship === null)
+        return res.status(404).send("internship not found");
+
+    if (db_get(db,
+        `SELECT 1 FROM Internship_files WHERE student_id = ? AND internship_id = ?;`,
+        [req.full_account.id, internship.id]
+    ) !== null)
+        return res.status(409).send("already applied to this internship");
+
+    try {
+        db.prepare(
+            `INSERT INTO Internship_files (student_id, internship_id) VALUES (?, ?);`
+        ).run(req.full_account.id, internship.id);
+    } catch (err: any) {
+        console.error("apply error:", err.message);
+        return res.status(500).send("failed to apply");
+    }
+
+    res.send();
 });
 
 
@@ -336,12 +379,12 @@ apiRouter.get('/company/applicants/:title', auth, m_full_account, (req: any, res
         return res.status(404).send("internship not found or not yours");
 
     let applicants = db_get_all(db,
-        `SELECT a.student_id, a.applied_at, acc.email,
-                p.first_name, p.last_name
-         FROM Applications a
-         JOIN Accounts acc ON acc.id = a.student_id
-         LEFT JOIN Persons p ON p.account_id = a.student_id
-         WHERE a.internship_id = ?;`,
+        `SELECT inf.id, inf.student_id, inf.status, acc.email,
+         p.first_name, p.last_name
+         FROM Internship_files inf
+         JOIN Accounts acc ON acc.id = inf.student_id
+         LEFT JOIN Persons p ON p.id = inf.student_id
+         WHERE inf.internship_id = ?;`,
         [internship.id]
     );
     if (applicants === null)
@@ -349,6 +392,42 @@ apiRouter.get('/company/applicants/:title', auth, m_full_account, (req: any, res
 
     res.send(applicants);
 });
+
+apiRouter.put('/company/application/status', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.COMPANY)
+        return res.status(401).send("only company can update application status");
+
+    const internship_file_id = req.body.internship_file_id ?? req.body.id;
+    const { status } = req.body;
+
+    console.log("full_account:", JSON.stringify(req.full_account));
+    console.log("internship_file_id:", internship_file_id, "status:", status);
+
+    if (!['accepted', 'rejected'].includes(status))
+        return res.status(400).send("invalid status");
+
+    const owns = db_get(db,
+        `SELECT 1 FROM Internship_files inf
+         JOIN Internship i ON i.id = inf.internship_id
+         WHERE inf.id = ? AND i.company_id = ?;`,
+        [internship_file_id, req.full_account.id]
+    );
+
+    console.log("owns:", owns);
+
+    if (owns === null)
+        return res.status(403).send("not your internship - file_id:" + internship_file_id + " company_id:" + req.full_account.id);
+
+    try {
+        db.prepare(`UPDATE Internship_files SET status = ? WHERE id = ?;`)
+          .run(status, internship_file_id);
+    } catch (err: any) {
+        return res.status(500).send("can't update status: " + err.message);
+    }
+
+    res.send();
+}); 
 
 // PUT /api/company/internship/dates
 // body: { title: "", min_begin: unix, max_begin: unix, duration: number }
@@ -411,58 +490,69 @@ apiRouter.get('/student/applications', auth, m_full_account, (req: any, res: any
         return res.status(401).send("only students can view their applications");
 
     let apps = db_get_all(db,
-        `SELECT a.status, a.applied_at,
-                i.title AS internship_title,
-                d.title AS domain,
-                c.name  AS company_name
-         FROM Applications a
-         JOIN Internship i    ON i.id = a.internship_id
-         JOIN Domains d       ON d.id = i.domain_id
-         JOIN Companies c     ON c.id = i.company_id
-         WHERE a.student_id = ?
-         ORDER BY a.applied_at DESC;`,
+        `SELECT
+            inf.id,
+            inf.internship_id,
+            inf.status,
+            i.title AS internship_title,
+            d.title AS domain,
+            co.name_company AS company_name
+         FROM Internship_files inf
+         JOIN Internship i ON i.id = inf.internship_id
+         LEFT JOIN Domains d ON d.id = i.domain_id
+         LEFT JOIN Companies co ON co.id = i.company_id
+         WHERE inf.student_id = ?;`,
         [req.full_account.id]
     );
-    if (apps === null)
-        apps = [];
-
+    if (apps === null) apps = [];
     res.send(apps);
 });
+
+
 
 // POST /api/student/document
 // body: { internship_title: "", filename: "", type: "rapport|resume|evaluation|..." }
 // (fichier déjà uploadé dans var/storage via une route upload séparée)
-apiRouter.post('/student/document', auth, m_full_account, (req: any, res: any) =>
+apiRouter.post('/student/document', auth, m_full_account, upload.array('files'), (req: any, res: any) =>
 {
     if (req.full_account.role !== ROLE.STUDENT)
         return res.status(401).send("only students can submit documents");
 
+    const { internship_title, type_id } = req.body;
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0)
+        return res.status(400).send("no files uploaded");
+
     const internship = db_get(db,
         `SELECT id FROM Internship WHERE title = ?;`,
-        [req.body.internship_title]
+        [internship_title]
     );
     if (internship === null)
         return res.status(404).send("internship not found");
 
-    // check student is actually linked to this internship
     const application = db_get(db,
-        `SELECT id FROM Applications
+        `SELECT id FROM Internship_files
          WHERE student_id = ? AND internship_id = ? AND status = 'accepted';`,
         [req.full_account.id, internship.id]
     );
     if (application === null)
         return res.status(403).send("you are not accepted in this internship");
 
-    if (!db_run(db,
-        `INSERT INTO Internship_files (application_id, filename, type, uploaded_at)
-         VALUES (?, ?, ?, ?);`,
-        [application.id, req.body.filename, req.body.type,
-         Math.floor(Date.now() / 1000)]
-    ))
-        return res.status(500).send("failed to register document");
+    try {
+        for (const file of files) {
+            db.prepare(
+                `INSERT INTO Documents (internship_file_id, file_path, type_id, student_accessible)
+                 VALUES (?, ?, ?, 1);`
+            ).run(application.id, file.path, type_id ?? 1);
+        }
+    } catch (err: any) {
+        return res.status(500).send("failed to register document: " + err.message);
+    }
 
-    res.send();
+    res.send({ uploaded: files.length });
 });
+
 
 // POST /api/student/request/domain
 // body: { domain: "" }  // demande d'ajout d'un domaine inexistant
@@ -490,27 +580,27 @@ apiRouter.get('/supervisor/students', auth, m_full_account, (req: any, res: any)
 {
     if (req.full_account.role !== ROLE.SUPERVISOR)
         return res.status(403).send("only supervisors can list their students");
-
+ 
     let students = db_get_all(db,
-        `SELECT acc.email,
-                p.first_name, p.last_name,
-                i.title AS internship_title,
-                c.name  AS company,
-                a.status
-         FROM Supervisions sv
-         JOIN Applications a  ON a.id  = sv.application_id
-         JOIN Accounts acc    ON acc.id = a.student_id
-         LEFT JOIN Persons p  ON p.account_id = a.student_id
-         JOIN Internship i    ON i.id  = a.internship_id
-         JOIN Companies c     ON c.id  = i.company_id
-         WHERE sv.supervisor_id = ?;`,
+        `SELECT
+            acc.email,
+            p.first_name,
+            p.last_name,
+            i.title      AS internship_title,
+            co.name_company AS company,
+            inf.status
+         FROM Internship_files inf
+         JOIN Accounts acc    ON acc.id = inf.student_id
+         LEFT JOIN Persons p  ON p.id   = inf.student_id
+         JOIN Internship i    ON i.id   = inf.internship_id
+         JOIN Companies co    ON co.id  = i.company_id
+         WHERE inf.tutor_id = ?;`,
         [req.full_account.id]
     );
-    if (students === null)
-        students = [];
-
+    if (students === null) students = [];
     res.send(students);
 });
+
 
 // PUT /api/supervisor/application/status
 // body: { application_id: number, status: "accepted"|"rejected"|"validated" }
@@ -535,21 +625,272 @@ apiRouter.put('/supervisor/application/status', auth, m_full_account, (req: any,
 
 
 
+
 // ADMIN
 
 // GET /api/admin/accounts
-// -> [{ id, email, role }]
 apiRouter.get('/admin/accounts', auth, m_full_account, (req: any, res: any) =>
 {
     if (req.full_account.role !== ROLE.ADMIN)
         return res.status(401).send("only admin can list accounts");
 
-    let accounts = db_get_all(db,
-        `SELECT id, email, role FROM Accounts;`,
-        []
-    );
-    if (accounts === null)
-        accounts = [];
-
+    let accounts = db_get_all(db, `
+        SELECT
+            a.id,
+            a.email,
+            p.first_name,
+            p.last_name,
+            co.name_company,
+            co.url_site,
+            CASE
+                WHEN ad.id IS NOT NULL THEN 0
+                WHEN su.id IS NOT NULL THEN 1
+                WHEN st.id IS NOT NULL THEN 2
+                WHEN co.id IS NOT NULL THEN 3
+                ELSE -1
+            END AS role
+        FROM Accounts a
+        LEFT JOIN Persons     p  ON p.id  = a.id
+        LEFT JOIN Admins      ad ON ad.id = a.id
+        LEFT JOIN Supervisors su ON su.id = a.id
+        LEFT JOIN Students    st ON st.id = a.id
+        LEFT JOIN Companies   co ON co.id = a.id;
+    `, []);
+    if (accounts === null) accounts = [];
     res.send(accounts);
 });
+
+// POST /api/admin/accounts
+apiRouter.post('/admin/accounts', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.ADMIN)
+        return res.status(401).send("only admin can create accounts");
+
+    const { email, password, role, first_name, last_name, name_company, url_site } = req.body;
+
+    if (!email || !password || role === undefined || role === null)
+        return res.status(400).send("email, password and role are required");
+
+    if (!(Object.values(ROLE) as number[]).includes(Number(role)))
+        return res.status(400).send("invalid role");
+
+    if (db_get(db, `SELECT 1 FROM Accounts WHERE email = ?;`, [email]) !== null)
+        return res.status(409).send("email already exists");
+
+    const password_hash = createHash('sha256').update(password).digest('hex');
+
+    let account_id: number;
+    try {
+        const result = db.prepare(
+            `INSERT INTO Accounts (email, password_hash) VALUES (?, ?);`
+        ).run(email, password_hash);
+        account_id = result.lastInsertRowid as number;
+    } catch (err) {
+        console.error("INSERT Accounts error:", err);
+        return res.status(500).send("can't create account");
+    }
+
+    try {
+        const r = Number(role);
+        if (r === ROLE.STUDENT)
+            db.prepare(`INSERT INTO Students (id) VALUES (?);`).run(account_id);
+        else if (r === ROLE.COMPANY)
+            db.prepare(`INSERT INTO Companies (id, name_company, url_site) VALUES (?, ?, ?);`)
+              .run(account_id, name_company ?? '', url_site ?? null);
+        else if (r === ROLE.SUPERVISOR)
+            db.prepare(`INSERT INTO Supervisors (id) VALUES (?);`).run(account_id);
+        else if (r === ROLE.ADMIN)
+            db.prepare(`INSERT INTO Admins (id) VALUES (?);`).run(account_id);
+
+        if (r !== ROLE.COMPANY)
+            db.prepare(`INSERT INTO Persons (id, first_name, last_name) VALUES (?, ?, ?);`)
+              .run(account_id, first_name ?? '', last_name ?? '');
+
+    } catch (err: any) {
+        console.error("INSERT role table error:", err.message);
+        db.prepare(`DELETE FROM Accounts WHERE id = ?;`).run(account_id);
+        return res.status(500).send("can't assign role: " + err.message);
+    }
+
+    res.status(201).send({ id: account_id });
+});
+
+// PUT /api/admin/account/:id
+apiRouter.put('/admin/account/:id', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.ADMIN)
+        return res.status(401).send("only admin can edit accounts");
+
+    const id = Number(req.params.id);
+
+    if (req.body.email) {
+        try {
+            db.prepare(`UPDATE Accounts SET email = ? WHERE id = ?;`).run(req.body.email, id);
+        } catch (err) {
+            return res.status(500).send("can't update email");
+        }
+    }
+
+    if (req.body.first_name || req.body.last_name) {
+        const exists = db_get(db, `SELECT 1 FROM Persons WHERE id = ?;`, [id]);
+        if (exists)
+            db.prepare(`UPDATE Persons SET first_name = ?, last_name = ? WHERE id = ?;`)
+              .run(req.body.first_name ?? '', req.body.last_name ?? '', id);
+        else
+            db.prepare(`INSERT INTO Persons (id, first_name, last_name) VALUES (?, ?, ?);`)
+              .run(id, req.body.first_name ?? '', req.body.last_name ?? '');
+    }
+
+    if (req.body.name_company || req.body.url_site) {
+        db.prepare(`UPDATE Companies SET name_company = ?, url_site = ? WHERE id = ?;`)
+          .run(req.body.name_company ?? '', req.body.url_site ?? null, id);
+    }
+
+    res.send();
+});
+
+// DELETE /api/admin/account/:id
+apiRouter.delete('/admin/account/:id', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.ADMIN)
+        return res.status(401).send("only admin can delete accounts");
+
+    const id = Number(req.params.id);
+
+    if (req.full_account.id === id)
+        return res.status(400).send("can't delete your own account");
+
+    try {
+        db.prepare(`DELETE FROM Tokens     WHERE account_id = ?;`).run(id);
+        db.prepare(`DELETE FROM Persons    WHERE id = ?;`).run(id);
+        db.prepare(`DELETE FROM Students   WHERE id = ?;`).run(id);
+        db.prepare(`DELETE FROM Supervisors WHERE id = ?;`).run(id);
+        db.prepare(`DELETE FROM Admins     WHERE id = ?;`).run(id);
+        db.prepare(`DELETE FROM Companies  WHERE id = ?;`).run(id);
+
+        const result = db.prepare(`DELETE FROM Accounts WHERE id = ?;`).run(id);
+        if (result.changes === 0)
+            return res.status(404).send("account not found");
+    } catch (err) {
+        console.error("DELETE account error:", err);
+        return res.status(500).send("can't delete account");
+    }
+
+    res.send();
+});
+
+
+// GET /api/company/documents/:internship_file_id
+apiRouter.get('/company/documents/:id', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.COMPANY)
+        return res.status(401).send("only company can view documents");
+
+    const owns = db_get(db,
+        `SELECT 1 FROM Internship_files inf
+         JOIN Internship i ON i.id = inf.internship_id
+         WHERE inf.id = ? AND i.company_id = ?;`,
+        [req.params.id, req.full_account.id]
+    );
+    if (owns === null)
+        return res.status(403).send("not your internship");
+
+    let docs = db_get_all(db,
+        `SELECT d.id, d.file_path, dt.info AS type
+         FROM Documents d
+         JOIN Document_types dt ON dt.id = d.type_id
+         WHERE d.internship_file_id = ?;`,
+        [req.params.id]
+    );
+    if (docs === null) docs = [];
+    res.send(docs);
+});
+
+
+// GET /api/download/:id
+apiRouter.get('/download/:id', auth, m_full_account, (req: any, res: any) =>
+{
+    const doc = db_get(db,
+        `SELECT d.file_path FROM Documents d WHERE d.id = ?;`,
+        [req.params.id]
+    );
+    if (doc === null)
+        return res.status(404).send("document not found");
+
+    const file = path.resolve(doc.file_path);
+    if (!fs.existsSync(file))
+        return res.status(404).send("file not found on disk");
+
+    res.download(file);
+});
+
+
+apiRouter.post('/student/apply/documents', auth, m_full_account, upload.array('files'), (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.STUDENT)
+        return res.status(401).send("only students can upload application documents");
+ 
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0)
+        return res.status(400).send("no files uploaded");
+ 
+    const internship_id = Number(req.body.internship_id);
+    if (!internship_id)
+        return res.status(400).send("internship_id is required");
+ 
+    // Vérifier que la candidature existe (peu importe le statut)
+    const application = db_get(db,
+        `SELECT id FROM Internship_files
+         WHERE student_id = ? AND internship_id = ?;`,
+        [req.full_account.id, internship_id]
+    );
+    if (application === null)
+        return res.status(404).send("application not found — apply first");
+ 
+    // Chercher le type "Candidature" ou prendre le premier type disponible
+    const candidatureType = db_get(db, `SELECT id FROM Document_types WHERE info LIKE '%andidat%' LIMIT 1;`, []);
+    const firstType       = db_get(db, `SELECT id FROM Document_types ORDER BY id ASC LIMIT 1;`, []);
+    const type_id         = candidatureType?.id ?? firstType?.id ?? 1;
+ 
+    console.log(`[apply/documents] type_id=${type_id} application.id=${application.id} files=${files.length}`);
+ 
+    try {
+        for (const file of files) {
+            db.prepare(
+                `INSERT INTO Documents (internship_file_id, file_path, type_id, student_accessible)
+                 VALUES (?, ?, ?, 1);`
+            ).run(application.id, file.path, type_id);
+        }
+    } catch (err: any) {
+        console.error("[apply/documents] INSERT error:", err.message);
+        return res.status(500).send("failed to register document: " + err.message);
+    }
+ 
+    res.send({ uploaded: files.length });
+});
+
+
+apiRouter.put('/admin/application/tutor', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.ADMIN)
+        return res.status(403).send("only admin can assign tutors");
+ 
+    const { internship_file_id, tutor_id } = req.body;
+    if (!internship_file_id || !tutor_id)
+        return res.status(400).send("internship_file_id and tutor_id are required");
+ 
+    // Vérifier que le tutor est bien un superviseur
+    const supervisor = db_get(db, `SELECT id FROM Supervisors WHERE id = ?;`, [tutor_id]);
+    if (supervisor === null)
+        return res.status(404).send("supervisor not found");
+ 
+    try {
+        db.prepare(`UPDATE Internship_files SET tutor_id = ? WHERE id = ?;`)
+          .run(tutor_id, internship_file_id);
+    } catch (err: any) {
+        return res.status(500).send("failed to assign tutor: " + err.message);
+    }
+ 
+    res.send();
+});
+ 

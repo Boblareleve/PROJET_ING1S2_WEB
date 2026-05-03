@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="APP" default="run" basedir=".">
+
+    <property name="src.dir" value="src"/>
+    <property name="bin.dir" value="bin"/>
+    <property name="lib.dir" value="lib"/>
+	 <property name="doc.dir" value="doc"/>
+
+    <path id="classpath">
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement location="${bin.dir}"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${bin.dir}"/>
+    </target>
+
+    <target name="build" depends="clean">
+        <mkdir dir="${bin.dir}"/>
+        <javac srcdir="${src.dir}"
+               destdir="${bin.dir}"
+               includeantruntime="false"/>
+        <jar destfile="lib/App.jar">
+            <manifest>
+                <attribute name="Main-Class" value="world.Main"/>
+                <attribute name="Class-Path" value="lib/"/>
+            </manifest>
+            <fileset dir="${bin.dir}"/>
+        </jar>
+    </target>
+
+    <target name="run" depends="build">
+        <java classname="world.Main" fork="true">
+            <classpath refid="classpath"/>
+        </java>
+    </target>
+	
+	<target name="javadoc" description="Generate Javadoc documentation">
+	        <javadoc
+	            sourcepath="${src.dir}"
+	            destdir="${doc.dir}"
+	            packagenames="world"
+	            author="true"
+	            version="true"
+	            use="true"
+	            encoding="UTF-8"
+	            charset="UTF-8"
+	            docencoding="UTF-8">
+	        </javadoc>
+	    </target>
+
+</project>
+

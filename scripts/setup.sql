@@ -85,13 +85,15 @@ CREATE TABLE Internship
     FOREIGN KEY (domain_id)  REFERENCES Domains(id)
 );
 
+
+
 CREATE TABLE Internship_files
 (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id      INTEGER NOT NULL,
     internship_id   INTEGER NOT NULL,
     tutor_id        INTEGER,
-    
+    status          TEXT NOT NULL DEFAULT 'pending',
     FOREIGN KEY (student_id)    REFERENCES Students(id),
     FOREIGN KEY (internship_id) REFERENCES Internship(id),
     FOREIGN KEY (tutor_id)      REFERENCES Supervisors(id)
