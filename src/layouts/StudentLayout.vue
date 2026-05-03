@@ -29,7 +29,7 @@ async function logout() { await user.logout(); router.push('/auth/login') }
       <div class="header">
         <header>
           <h3>{{ route.meta.title }}</h3>
-          <button @click="logout">logout</button>
+          <button class="btn-logout"v-on:click="logout()"> logout </button>
         </header>
       </div>
       <div class="content">

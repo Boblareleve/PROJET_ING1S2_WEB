@@ -25,7 +25,7 @@
             <div class="header">
                 <header>
                     <h3 >{{route.meta.title}}</h3>
-                    <button v-on:click="logout()"> logout </button>
+                    <button class="btn-logout"v-on:click="logout()"> logout </button>
                 </header>
             </div>
             <div class="content">

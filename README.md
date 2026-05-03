@@ -1,48 +1,50 @@
-# stage
+=====================================================
+            PROJET WEB CY TECH - ING1 S2
+=====================================================
 
-This template should help get you started developing with Vue 3 in Vite.
+1. INSTALLATION ET CONFIGURATION
+--------------------------------
 
-## Recommended IDE Setup
+L'initialisation du projet nécessite l'exécution de scripts Bash
+pour configurer l'environnement de base de données.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+A. Configuration de la base de données :
+   Exécutez le script suivant pour créer la structure des tables :
+   
+   $ bash scripts/sql.sh setup
 
-## Recommended Browser Setup
+B. Insertion des données de test :
+   Pour peupler la base avec des exemples de comptes (Admin, 
+   Étudiants, Entreprises), lancez la commande suivante :
+   
+   $ bash scripts/sql.sh test_accounts
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
 
-## Type Support for `.vue` Imports in TS
+2. LANCEMENT DE L'APPLICATION
+-----------------------------
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+Une fois la base de données prête, vous pouvez démarrer le 
+serveur de développement via le script situé à la racine :
 
-## Customize configuration
+$ bash restart
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+Le serveur sera alors accessible sur votre navigateur à 
+l'adresse : http://localhost:5173
 
-## Project Setup
 
-```sh
-npm install
-```
+3. STRUCTURE DU DEPOT
+---------------------
 
-### Compile and Hot-Reload for Development
+- scripts/ : Utilitaires pour la base de données SQL.
+- api/     : Backend (requêtes et accès aux données).
+- src/     : Code source du frontend (Vue.js).
 
-```sh
-npm run dev
-```
 
-### Type-Check, Compile and Minify for Production
+4. MAINTENANCE
+--------------
 
-```sh
-npm run build
-```
+En cas de problème de droits d'exécution sur les scripts, 
+utilisez la commande suivante :
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+$ chmod +x scripts/*.sh restart
+=====================================================

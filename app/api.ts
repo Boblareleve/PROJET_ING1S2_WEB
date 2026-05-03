@@ -574,8 +574,6 @@ apiRouter.post('/student/request/domain', auth, m_full_account, (req: any, res: 
 
 // SUPERVISOR
 
-// GET /api/supervisor/students
-// -> [{ student_id, first_name, last_name, email, internship_title, company, status }]
 apiRouter.get('/supervisor/students', auth, m_full_account, (req: any, res: any) =>
 {
     if (req.full_account.role !== ROLE.SUPERVISOR)
@@ -583,10 +581,11 @@ apiRouter.get('/supervisor/students', auth, m_full_account, (req: any, res: any)
  
     let students = db_get_all(db,
         `SELECT
+            inf.id          AS application_id,
             acc.email,
             p.first_name,
             p.last_name,
-            i.title      AS internship_title,
+            i.title         AS internship_title,
             co.name_company AS company,
             inf.status
          FROM Internship_files inf
@@ -600,27 +599,93 @@ apiRouter.get('/supervisor/students', auth, m_full_account, (req: any, res: any)
     if (students === null) students = [];
     res.send(students);
 });
-
-
+ 
+// GET /api/supervisor/available
+apiRouter.get('/supervisor/available', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.SUPERVISOR)
+        return res.status(403).send("only supervisors can view available applications");
+ 
+    let available = db_get_all(db,
+        `SELECT
+            inf.id          AS application_id,
+            acc.email,
+            p.first_name,
+            p.last_name,
+            i.title         AS internship_title,
+            co.name_company AS company,
+            d.title         AS domain
+         FROM Internship_files inf
+         JOIN Accounts acc    ON acc.id = inf.student_id
+         LEFT JOIN Persons p  ON p.id   = inf.student_id
+         JOIN Internship i    ON i.id   = inf.internship_id
+         JOIN Companies co    ON co.id  = i.company_id
+         LEFT JOIN Domains d  ON d.id   = i.domain_id
+         WHERE inf.status = 'accepted'
+           AND inf.tutor_id IS NULL;`,
+        []
+    );
+    if (available === null) available = [];
+    res.send(available);
+});
+ 
+// POST /api/supervisor/assign
+// body: { application_id: number }
+apiRouter.post('/supervisor/assign', auth, m_full_account, (req: any, res: any) =>
+{
+    if (req.full_account.role !== ROLE.SUPERVISOR)
+        return res.status(403).send("only supervisors can self-assign");
+ 
+    const { application_id } = req.body;
+    if (!application_id)
+        return res.status(400).send("application_id is required");
+ 
+    const inf = db_get(db,
+        `SELECT id, tutor_id FROM Internship_files WHERE id = ? AND status = 'accepted';`,
+        [application_id]
+    );
+    if (inf === null)
+        return res.status(404).send("application not found or not accepted");
+    if (inf.tutor_id !== null)
+        return res.status(409).send("a tutor is already assigned");
+ 
+    try {
+        db.prepare(`UPDATE Internship_files SET tutor_id = ? WHERE id = ?;`)
+          .run(req.full_account.id, application_id);
+    } catch (err: any) {
+        return res.status(500).send("failed to assign: " + err.message);
+    }
+ 
+    res.send();
+});
+ 
 // PUT /api/supervisor/application/status
 // body: { application_id: number, status: "accepted"|"rejected"|"validated" }
 apiRouter.put('/supervisor/application/status', auth, m_full_account, (req: any, res: any) =>
 {
     if (req.full_account.role !== ROLE.SUPERVISOR)
         return res.status(401).send("only supervisors can update application status");
-
-    const allowed_statuses = ['accepted', 'rejected', 'validated'];
-    if (!allowed_statuses.includes(req.body.status))
+ 
+    const allowed = ['accepted', 'rejected', 'validated'];
+    if (!allowed.includes(req.body.status))
         return res.status(400).send("invalid status");
-
+ 
+    const inf = db_get(db,
+        `SELECT id FROM Internship_files WHERE id = ? AND tutor_id = ?;`,
+        [req.body.application_id, req.full_account.id]
+    );
+    if (inf === null)
+        return res.status(403).send("not your student");
+ 
     if (!db_run(db,
-        `UPDATE Applications SET status = ? WHERE id = ?;`,
+        `UPDATE Internship_files SET status = ? WHERE id = ?;`,
         [req.body.status, req.body.application_id]
     ))
         return res.status(500).send("failed to update status");
-
+ 
     res.send();
 });
+
 
 
 

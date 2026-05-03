@@ -13,6 +13,7 @@ interface Account {
 
 const ROLES = [
   { value: 0, label: "Admin", class: "badge-admin" },
+  {value : 1, label: "Professeur", class:"badge-supervisor"},
   { value: 2, label: "Étudiant", class: "badge-student" },
   { value: 3, label: "Entreprise", class: "badge-company" }
 ]
@@ -172,11 +173,6 @@ onMounted(fetchAccounts)
 
     <!-- Modal de Création/Edition -->
     <dialog ref="dialog" class="modal">
-      <div class="modal-header">
-        <h3>{{ isEditing ? "Modifier le compte" : "Nouveau compte" }}</h3>
-        <button class="close-icon" @click="closeDialog">✕</button>
-      </div>
-
       <form @submit.prevent="onSubmit" class="modal-form">
         <div class="field">
           <label>Email professionnel</label>
@@ -232,30 +228,56 @@ onMounted(fetchAccounts)
 </template>
 
 <style scoped>
-
-.page { max-width: 1100px; margin: 0 auto; padding: 2rem; font-family: 'Inter', system-ui, sans-serif; }
-
-.page-header { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: flex-end; 
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+/* 1. On enlève le max-width et le margin auto pour que ça remplisse tout l'espace du layout */
+.page {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  
+  width: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text-main);
 }
 
+/* 2. On s'assure que le header de la page utilise bien tout l'espace */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1.5rem;
+}
 
-.title { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin: 0; }
-.subtitle { color: #64748b; margin-top: 0.25rem; }
+/* 3. On force la carte et le tableau à prendre 100% de la largeur du contenu */
+.card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+  width: 100%; 
+}
 
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Le reste de tes styles (badges, boutons, modal) est correct, 
+   garde-les mais assure-toi d'être en <style scoped> */
+
+.title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+.subtitle { color: var(--text-muted); font-size: 0.9rem; }
 
 .header-actions { display: flex; gap: 1rem; align-items: center; }
 
-.filter-group { 
-  display: flex; 
-  background: #f1f5f9; 
-  padding: 0.25rem; 
-  border-radius: 10px; 
+.filter-group {
+  display: flex;
+  background: #f1f5f9;
+  padding: 0.25rem;
+  border-radius: 10px;
 }
 
 .filter-btn {
@@ -265,54 +287,134 @@ onMounted(fetchAccounts)
   border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
+}
+
+.filter-btn.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.table th {
+  background: #f8fafc;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badge-student { background: #eff6ff; color: #1d4ed8; }
+.badge-supervisor { background: #ecfdf5; color: #047857; }
+.badge-company { background: #fffbeb; color: #b45309; }
+.badge-admin { background: #faf5ff; color: #7e22ce; }
+
+.btn { padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; }
+.btn-primary { background: var(--primary); color: white; }
+
+
+.modal {
+ 
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  
+  border: none;
+  border-radius: 16px; 
+  width: 90%;
+  max-width: 500px;
+  padding: 0; 
+  background: white;
+  
+
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  animation: modalScale 0.3s ease-out;
+  margin: 0;
+}
+
+@keyframes modalScale {
+  from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+
+.modal::backdrop {
+  background: rgba(15, 23, 42, 0.7); 
+  backdrop-filter: blur(5px); 
+}
+
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+
+.modal-form {
+  padding: 2rem;
+}
+
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.field input, .field select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
   transition: all 0.2s;
 }
 
-.filter-btn.active { background: white; color: #4f46e5; shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.field input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
 
 
-.card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-.table { width: 100%; border-collapse: collapse; text-align: left; }
-.table th { background: #f8fafc; padding: 1rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
-.table td { padding: 1rem; border-top: 1px solid #f1f5f9; font-size: 0.9rem; vertical-align: middle; }
-
-.mono { font-family: monospace; color: #94a3b8; }
-.bold { font-weight: 600; color: #1e293b; }
-.muted { color: #64748b; }
-.actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
-
-
-.btn { padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
-.btn-primary { background: #4f46e5; color: white; }
-.btn-primary:hover { background: #4338ca; transform: translateY(-1px); }
-
-.btn-sm { padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer; }
-.btn-edit { background: #eff6ff; color: #2563eb; }
-.btn-del { background: #fef2f2; color: #dc2626; }
-.btn-edit:hover { background: #dbeafe; }
-.btn-del:hover { background: #fee2e2; }
-
-
-.badge { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
-.badge-student { background: #dbeafe; color: #1e40af; }
-.badge-supervisor { background: #d1fae5; color: #065f46; }
-.badge-company { background: #fef9c3; color: #854d0e; }
-.badge-admin { background: #f3e8ff; color: #6b21a8; }
-
-
-.modal { border: none; border-radius: 16px; padding: 0; width: 100%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-.modal::backdrop { background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); }
-.modal-header { padding: 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-.modal-form { padding: 1.5rem; }
-
-.field { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
-.field label { font-size: 0.85rem; font-weight: 600; color: #475569; }
-.field input, .field select { padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; }
-.divider { border: 0; border-top: 1px solid #f1f5f9; margin: 1.5rem 0; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
-.btn-cancel { background: #f1f5f9; color: #475569; }
-
-.empty, .loading { padding: 3rem; text-align: center; color: #94a3b8; }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
 </style>

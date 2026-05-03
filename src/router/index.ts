@@ -6,12 +6,12 @@ import { ROLE } from '../../share/role'
 import AdminLayout      from '@/layouts/AdminLayout.vue'
 import CompanyLayout    from '@/layouts/CompanyLayout.vue'
 import StudentLayout    from '@/layouts/StudentLayout.vue'
+import SupervisorLayout from '@/layouts/SupervisorLayout.vue'
 
 // Admin views
 import AdminDashboard from '@/pages/admin/Dashboard.vue'
 import AdminDomains   from '@/pages/admin/AdminDomains.vue'
 import AdminAccounts  from '@/pages/admin/AdminAccounts.vue'
-
 
 // Company views
 import CompanyInternships from '@/pages/entreprise/CompanyInternships.vue'
@@ -22,16 +22,18 @@ import StudentSearch       from '@/pages/etudiant/StudentSearch.vue'
 import StudentApplications from '@/pages/etudiant/StudentApplications.vue'
 import StudentDocuments    from '@/pages/etudiant/StudentDocuments.vue'
 
+// Supervisor views
+import SupervisorStudents from '@/pages/supervisor/SupervisorStudents.vue'
+import SupervisorOffers   from '@/pages/supervisor/SupervisorOffers.vue'
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    // --- Redirect par défaut ---
     { path: '/', redirect: '/auth/login' },
 
-    // --- Auth (existant) ---
     {
       path: '/auth/login',
-      component: () => import('@/pages/auth/Login.vue'), // ton composant existant
+      component: () => import('@/pages/auth/Login.vue'),
       meta: { public: true }
     },
 
@@ -73,32 +75,38 @@ const router = createRouter({
       ]
     },
 
+    // --- Superviseur ---
+    {
+      path: '/supervisor',
+      component: SupervisorLayout,
+      meta: { requiresRole: ROLE.SUPERVISOR },
+      children: [
+        { path: '',        redirect: '/supervisor/students' },
+        { path: 'students', component: SupervisorStudents, meta: { title: 'Mes étudiants' } },
+        { path: 'offers',   component: SupervisorOffers,   meta: { title: 'Offres disponibles' } },
+      ]
+    },
+
+    { path: '/:pathMatch(.*)*', redirect: '/auth/login' }
   ]
 })
 
-
 router.beforeEach((to) => {
-  // 1. Autoriser les routes publiques
   if (to.meta.public) return true
 
   const user = useUserStore()
 
-  // 2. Vérifier la connexion
   if (!user.isConnected) return '/auth/login'
 
-  // 3. Récupérer le rôle requis en remontant la chaîne des routes (parent -> enfant)
-  // .findLast() permet de prendre le rôle le plus spécifique défini
   const requiredRole = to.matched.find(record => record.meta.requiresRole)?.meta.requiresRole
 
-  // 4. Vérification du rôle
   if (requiredRole !== undefined && user.user?.role !== requiredRole) {
-    const roleRedirects : Record<number, string> = {
+    const roleRedirects: Record<number, string> = {
       [ROLE.ADMIN]:      '/admin',
       [ROLE.COMPANY]:    '/company',
       [ROLE.STUDENT]:    '/student',
       [ROLE.SUPERVISOR]: '/supervisor',
     }
-    
     return roleRedirects[user.user?.role ?? -1] ?? '/auth/login'
   }
 
