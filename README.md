@@ -39,7 +39,13 @@ l'adresse : http://localhost:5173
 - src/     : Code source du frontend (Vue.js).
 
 
-4. MAINTENANCE
+4. TEST COMPTE
+   - a@gmail.com mdp 1234 pour admin
+   - c@gmail.com mdp 1234 pour entreprise
+   - s@gmail.com mdp 1234 pour professeur
+   - e@gmail.com mdp 1234 pour etudiant
+
+6. MAINTENANCE
 
 En cas de problème de droits d'exécution sur les scripts, 
 utilisez la commande suivante :
